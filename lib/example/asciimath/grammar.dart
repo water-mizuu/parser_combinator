@@ -1,3 +1,5 @@
+// ignore_for_file: literal_only_boolean_expressions
+
 import "package:parser_combinator/example/asciimath/definitions.dart";
 import "package:parser_combinator/parser_combinator.dart";
 
@@ -62,47 +64,63 @@ class MathTranslator extends PegGrammar<String> with AsciiMathDefinitions {
         unknown.$(),
       ].choice();
 
-  Parser<String> environment() => ("#".tok(), identifier.$(), environmentArgs.$(), block.$()).sequence().map(($) {
-    String name = $.$1;
-    String args = $.$2;
-    String body = $.$3.indent();
+  Parser<String> environment() => ("#".tok() + identifier.$() + environmentArgs.$() + block.$()).map(($) {
+    if ($ case [_, String name, String args, String body]) {
+      return "\\begin{$name}$args\n${body.indent()}\n\\end{$name}\n";
+    }
 
-    return "\\begin{$name}$args\n$body\n\\end{$name}\n";
+    return "";
   });
   Parser<String> environmentArgs() => environmentArg.$().star().map(($) {
     return $.join();
   });
-  Parser<String> environmentArg() => (untrimmedLeft.$(), document.$(), untrimmedRight.$()).sequence().map(($) {
-    String left = $.$0;
-    String value = $.$1;
-    String right = $.$2;
-
-    return "$left$value$right";
+  Parser<String> environmentArg() => (untrimmedLeft.$() + document.$() + untrimmedRight.$()).map(($) {
+    if ($ case [String left, String value, String right]) {
+      return "$left$value$right";
+    }
+    return "";
   });
 
-  Parser<String> fraction() => (post.$(), "/".tok().except("//".tok()), post.$()).sequence().map(($) {
-    String numerator = unwrap($.$0);
-    String denominator = unwrap($.$2);
-
-    return "\\frac{$numerator}{$denominator}";
+  Parser<String> fraction() => (post.$() + "/".tok().except("//".tok()) + post.$()).map(($) {
+    if ($ case [String numerator, _, String denominator]) {
+      if ((unwrap(numerator), unwrap(denominator)) case (String numerator, String denominator)) {
+        return "\\frac{$numerator}{$denominator}";
+      }
+    }
+    return "";
   });
-  Parser<String> script() => (operator.$(), (scriptOp.$(), operator.$()).sequence().star()).sequence().map(($) {
-    String base = $.$0;
-    String scripts = [for ((String, String) pair in $.$1) "${pair.$0}{${unwrap(pair.$1)}}"].join();
+  Parser<String> script() => (operator.$() + (scriptOp.$() + operator.$()).star()).map(($) {
+    if ($ case [String left, List<Object> scripts]) {
+      StringBuffer buffer = StringBuffer();
+      buffer.write(left);
 
-    return "$base$scripts";
+      for (Object object in scripts) {
+        if (object case [String operator, String right]) {
+          buffer
+            ..write(operator)
+            ..write("{${unwrap(right)}}");
+        }
+      }
+
+      return buffer.toString();
+    }
+    return "";
+    // String base = $.$0;
+    // String scripts = [for ((String, String) pair in $.$1) "${pair.$0}{${unwrap(pair.$1)}}"].join();
+
+    // return "$base$scripts";
   });
 
-  Parser<String> clozeExpression() => ("[[".s(), clozeSegments.$(), "]]".s()).sequence().map(($) => "[[${$.$1}]]");
+  Parser<String> clozeExpression() => ("[[".s() + clozeSegments.$() + "]]".s()).map(($) => "[[${$[1]}]]");
   Parser<String> clozeSegments() => clozeSegment.$().separated("::".s()).map(($) => $.join("::"));
   Parser<String> clozeSegment() => expression.$().except("::".s() / "]]".s()).trim().plus().map(($) => $.join());
 
-  Parser<String> matrix() => (leftBracket.$(), matrixContent.$(), rightBracket.$()).sequence().map(($) {
-    String left = $.$0;
-    String body = $.$1.indent();
-    String right = $.$2;
+  Parser<String> matrix() => (leftBracket.$() + matrixContent.$() + rightBracket.$()).map(($) {
+    if ($ case [String left, String body, String right]) {
+      return "$left\\begin{matrix}\n${body.indent()}\n\\end{matrix}$right";
+    }
+    return "";
 
-    return "$left\\begin{matrix}\n$body\n\\end{matrix}$right";
   });
   Parser<String> matrixContent() => (matrixRow.$() % ",".tokNl()).map(($) {
     return $.join(r"\\" "\n");
@@ -120,43 +138,43 @@ class MathTranslator extends PegGrammar<String> with AsciiMathDefinitions {
     return $;
   });
 
-  Parser<String> group() => (leftBracket.$(), groupBody.$(), rightBracket.$()).sequence().map(($) {
-    String left = $.$0;
-    String body = $.$1;
-    String right = $.$2;
+  Parser<String> group() => (leftBracket.$() + groupBody.$() + rightBracket.$()).map(($) {
+    if ($ case [String left, String body, String right]) {
+      return "$left$body$right";
+    }
+    return "";
 
-    return "$left$body$right";
   });
   Parser<String> groupBody() => expression.$().except(rightBracket.$()).trimNewline().star().map(($) {
     return $.join(" ");
   });
 
-  Parser<String> binary() => (binaryOperator.$(), operator.$().trimRight(), operator.$()).sequence().map(($) {
-    AsciiMathConversion conversion = $.$0;
-    String op = conversion.tex ?? conversion.asciimath;
-    String left = unwrap($.$1);
-    String right = unwrap($.$2);
-
-    if (conversion.firstIsOption) {
-      return "$op[$left]{$right}";
-    } else {
-      return "$op{$left}{$right}";
+  Parser<String> binary() => (binaryOperator.$() + operator.$().trimRight() + operator.$()).map(($) {
+    if ($ case [AsciiMathConversion conversion, String left, String right]) {
+      String op = conversion.tex ?? conversion.asciimath;
+      if ((unwrap(left), unwrap(right)) case (String left, String right)) {
+        if (conversion.firstIsOption) {
+          return "$op[$left]{$right}";
+        } else {
+          return "$op{$left}{$right}";
+        }
+      }
     }
+
+    return "";
   });
-  Parser<String> unary() => (unaryOperator.$(), atomic.$()).sequence().map(($) {
-    AsciiMathConversion conversion = $.$0;
-    String op = conversion.tex ?? conversion.asciimath;
-    String value = unwrap($.$1);
-
-    (String, String)? leftRight = conversion.rewriteLeftRight;
-    if (leftRight != null) {
-      String left = leftRight.$0;
-      String right = leftRight.$1;
-
-      return "$left $value $right";
-    } else {
-      return "$op{$value}";
+  Parser<String> unary() => (unaryOperator.$() & atomic.$()).map(($) {
+    if ($ case [AsciiMathConversion conversion, String value]) {
+      String op = conversion.tex ?? conversion.asciimath;
+      if (unwrap(value) case String value) {
+        if (conversion.rewriteLeftRight case (String left, String right)) {
+          return "$left $value $right";
+        } else {
+          return "$op{$value}";
+        }
+      }
     }
+    return "";
   });
 
   Parser<String> greekLetter() => asciiMathSymbolsIn(greekLetters).map((k) => symbolMap[k]?.tex ?? k);
@@ -186,10 +204,9 @@ class MathTranslator extends PegGrammar<String> with AsciiMathDefinitions {
   Parser<String> text() => r'(?:(?:\\.)|(?:[^"]))*'.r().surrounded('"'.p(), '"'.p()).map((v) => "\\text{$v}");
 
   // Parsers used in post.
-  Parser<String> _unwrap() =>
-      (_sustain.$())
-        .surrounded(r"\left".s() + leftBracket.$(), r"\right".s() + rightBracket.$())
-        .prefix(r"\left".s().and());
+  Parser<String> _unwrap() => (_sustain.$())
+      .surrounded(r"\left".s() + leftBracket.$(), r"\right".s() + rightBracket.$())
+      .prefix(r"\left".s().and());
 
   Parser<String> _sustain() => _sustainMember.$().plus().flat();
   Parser<Object> _sustainMember() =>
@@ -197,7 +214,7 @@ class MathTranslator extends PegGrammar<String> with AsciiMathDefinitions {
       any().except(r"\right".s() & rightBracket.$());
 
   String unwrap(String target) {
-    if (_unwrap.peg(target, handler: PrimitiveHandler()).tryUnwrap() case String result) {
+    if (_unwrap.peg.primitive(target).tryUnwrap() case String result) {
       return result;
     }
     return target;
