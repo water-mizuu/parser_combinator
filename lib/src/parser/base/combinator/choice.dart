@@ -1,0 +1,107 @@
+import "package:parser_combinator/src/context/context.dart";
+import "package:parser_combinator/src/context/failure.dart";
+import "package:parser_combinator/src/context/success.dart";
+import "package:parser_combinator/src/gll/class/trampoline.dart";
+import "package:parser_combinator/src/gll/shared/typedef.dart";
+import "package:parser_combinator/src/parser/base/core/abstract/parser.dart";
+import "package:parser_combinator/src/parser/base/core/mixin/combinator_parser.dart";
+import "package:parser_combinator/src/peg/handler/abstract/handler.dart";
+
+///
+/// Choice [Parser] that describes alternative.
+///
+class ChoiceParser<R> extends Parser<R> with CombinatorParser<R> {
+  @override
+  final List<Parser<R>> children;
+
+  ChoiceParser(this.children);
+  ChoiceParser._empty() : children = [];
+
+  @override
+  void gllParseOn(Context<void> context, Trampoline trampoline, Continuation<R> continuation) {
+    for (Parser<R> parser in children) {
+      trampoline.add(parser, context, continuation);
+    }
+  }
+
+  @override
+  Context<R> pegParseOn(Context<void> context, PegHandler handler) {
+    for (int i = 0; i < children.length; ++i) {
+      Context<R> result = handler.parse(children[i], context);
+      if (result is Success) {
+        return result;
+      }
+      if (result is Failure) {
+        handler.failure(result.failure());
+      }
+    }
+
+    return handler.longestFailure;
+  }
+
+  @override
+  ChoiceParser<R> generateEmpty() {
+    return ChoiceParser._empty();
+  }
+}
+
+///
+/// Helper method for the [ChoiceParser] constructor.
+///
+ChoiceParser<R> choice<R>(Iterable<Parser<R>> parsers) => ChoiceParser(parsers.toList());
+
+extension ChoiceParserExtension<R> on Parser<R> {
+  Parser<Object?> operator |(Parser<Object?> other) {
+    Parser<R> self = this;
+
+    if (self is ChoiceParser<R>) {
+      return ChoiceParser([...self.children, other]);
+    } else {
+      return ChoiceParser([self, other]);
+    }
+  }
+
+  Parser<R> operator /(Parser<R> other) {
+    Parser<R> self = this;
+
+    if (self is ChoiceParser<R>) {
+      return ChoiceParser([...self.children, other]);
+    } else {
+      return ChoiceParser([self, other]);
+    }
+  }
+
+  Parser<Object?> or(Parser<Object?> other) => this | other;
+}
+
+extension NonNullableChoiceParserExtension<R extends Object> on Parser<R> {
+  Parser<Object> operator |(Parser<Object> other) {
+    Parser<R> self = this;
+
+    if (self is ChoiceParser<R>) {
+      return ChoiceParser([...self.children, other]);
+    } else {
+      return ChoiceParser([self, other]);
+    }
+  }
+
+  Parser<R> operator /(Parser<R> other) {
+    Parser<R> self = this;
+
+    if (self is ChoiceParser<R>) {
+      return ChoiceParser([...self.children, other]);
+    } else {
+      return ChoiceParser([self, other]);
+    }
+  }
+
+  Parser<Object> or(Parser<Object> other) => this | other;
+}
+
+extension ListChoiceParserExtension<R> on Iterable<Parser<R>> {
+  Parser<R> choice() => ChoiceParser(toList());
+}
+
+extension ChoiceBuilderParserExtension on ChoiceParser<R> Function<R>(Iterable<Parser<R>> parsers) {
+  ChoiceParser<R> builder<R>(Iterable<Parser<R>> Function() builder) => this(builder());
+}
