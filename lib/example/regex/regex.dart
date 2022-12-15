@@ -45,15 +45,15 @@ Parser<bool> _post() => choice.builder(() sync* {
 Parser<Object> _range() => _rangeUnit.$().plus();
 Parser<Object> _rangeUnit() =>
     (_rangeChar.$(), "-".s(), _rangeChar.$()).sequence().where(($) {
-      int low = $.$0.unit;
-      int high = $.$2.unit;
-
-      return low <= high;
+      if ($ case [int low, _, int high]) {
+        return low <= high;
+      }
+      return false;
     }, messageBuilder: ($) {
-      int low = $.$0.unit;
-      int high = $.$2.unit;
-
-      return "Expected a valid range. (Received $low to $high)";
+      if ($ case (String low, String high)) {
+        return "Expected a valid range. (Received ${low.unit} to ${high.unit})";
+      }
+      return "";
     }) |
     _escChar.$() |
     _boundChar.$(); //

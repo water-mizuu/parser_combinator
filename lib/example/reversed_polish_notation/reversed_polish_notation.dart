@@ -47,44 +47,44 @@ Parser<String> unaryOperators = ["!", "-", "sqrt"].map(token).choice();
 /// ```
 Parser<num> rpnParser() =>
     (rpnParser.$() & rpnParser.$() & binaryOperators).map(($) {
-      num left = $[0].cast<num>();
-      num right = $[1].cast<num>();
-      String operator = $[2].cast<String>();
-
-      switch (operator) {
-        case "+":
-          return left + right;
-        case "-":
-          return left - right;
-        case "*":
-          return left * right;
-        case "/":
-          return left / right;
-        case "~/":
-          return left ~/ right;
-        case "%":
-          return left % right;
-        case "^":
-        case "**":
-          return pow(left, right);
-        default:
-          throw Exception("Unknown operator '$operator'");
+      if ($ case [num left, num right, String operator]) {
+        switch (operator) {
+          case "+":
+            return left + right;
+          case "-":
+            return left - right;
+          case "*":
+            return left * right;
+          case "/":
+            return left / right;
+          case "~/":
+            return left ~/ right;
+          case "%":
+            return left % right;
+          case "^":
+          case "**":
+            return pow(left, right);
+          default:
+            throw Exception("Unknown operator '$operator'");
+        }
       }
+
+      throw Error();
     }) / //
     (rpnParser.$() & unaryOperators).map(($) {
-      num expression = $[0].cast();
-      String operator = $[1].cast();
-
-      switch (operator) {
-        case "sqrt":
-          return sqrt(expression);
-        case "-":
-          return -expression;
-        case "!":
-          return piFunction(expression);
-        default:
-          throw Exception("Unknown operator '$operator'");
+      if ($ case [num expression, String operator]) {
+        switch (operator) {
+          case "sqrt":
+            return sqrt(expression);
+          case "-":
+            return -expression;
+          case "!":
+            return piFunction(expression);
+          default:
+            throw Exception("Unknown operator '$operator'");
+        }
       }
+      throw Error();
     }) / //
     ("(".tok(), rpnParser.$(), ")".tok()).sequence().map(($) => $.$1) /
     regex(r"\d+").trim().map(num.parse);
