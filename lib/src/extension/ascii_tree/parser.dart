@@ -2,8 +2,8 @@ import "package:parser_combinator/parser_combinator.dart";
 
 String _generateAsciiTree(
   Expando<bool> built,
-  Map<Parser, int> rules,
-  Parser parser,
+  Map<Parser<void>, int> rules,
+  Parser<void> parser,
   String indent, {
   required bool isLast,
   required int level,
@@ -27,19 +27,13 @@ String _generateAsciiTree(
 
     built[parser] = true;
 
-    List<Parser> children = parser.children.toList();
+    List<Parser<void>> children = parser.children.toList();
     String newIndent = "$indent${isLast ? "   " : "│  "}";
-    for (int i = 0; i < children.length; ++i) {
-      String childrenTree = _generateAsciiTree(
-        built,
-        rules,
-        children[i],
-        newIndent,
-        isLast: i == children.length - 1,
-        level: level + 1,
-      );
-      buffer.write(childrenTree);
-    }
+
+    buffer.writeAll([
+      for (int i = 0; i < children.length; ++i)
+        _generateAsciiTree(built, rules, children[i], newIndent, isLast: i == children.length - 1, level: level + 1)
+    ]);
     built[parser] = null;
   }
 
@@ -48,12 +42,13 @@ String _generateAsciiTree(
 
 extension AsciiTreeParserExtension<R> on Parser<R> {
   String generateAsciiTree() {
-    int i = 0;
-    Map<Parser, int> rules = {for (Parser p in this.rules()) p: ++i};
-    Expando<bool> expando = Expando();
+    Expando<bool> expando = Expando<bool>();
     StringBuffer buffer = StringBuffer();
+    int i = 0;
 
-    for (Parser p in rules.keys) {
+    Map<Parser<void>, int> rules = {for (Parser<void> p in this.rules()) p: ++i};
+
+    for (Parser<void> p in rules.keys) {
       buffer
         ..writeln("rule-${rules[p]}")
         ..writeln(_generateAsciiTree(expando, rules, p, "", isLast: true, level: 0));

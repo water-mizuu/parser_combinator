@@ -1,5 +1,4 @@
-import "package:meta/meta.dart";
-import "package:parser_combinator/src/context/context.dart";
+part of "context.dart";
 
 @optionalTypeArgs
 @immutable
@@ -53,14 +52,14 @@ class Failure extends Context<Never> {
 
   /// Takes a line and shortens it as necessary. Returns a list of three strings, would really appreciate
   /// using the Record type proposal here.
-  static List<String> _shortenLine(int threshold, String line, int pointer) {
+  static (String, String, String) _shortenLine(int threshold, String line, int pointer) {
     String cleanedLine = _highlightIndent(line);
 
     if (pointer < 0) {
-      return ["", "·", line];
+      return ("", "·", line);
     }
     if (pointer > cleanedLine.length) {
-      return [line, ".", ""];
+      return (line, ".", "");
     }
 
     String before = cleanedLine.substring(0, pointer);
@@ -75,17 +74,16 @@ class Failure extends Context<Never> {
         ? "${after.substring(0, threshold)}..."
         : after;
 
-    return [shortenedBefore, now, shortenedAfter];
+    return (shortenedBefore, now, shortenedAfter);
   }
+
+  String get failureMessage => generateFailureMessage();
 
   String generateFailureMessage() {
     const int threshold = 12;
     const String lineIndent = "  ";
 
-    List<String> lineParts = _shortenLine(threshold, padded.split("\n")[line - 1], column - 1);
-    String left = lineParts[0];
-    String point = lineParts[1];
-    String right = lineParts[2];
+    var (String left, String point, String right) = _shortenLine(threshold, padded.split("\n")[line - 1], column - 1);
 
     String specificLine = "$lineIndent$left$point$right";
     String cursorBuffer = " " * left.length;
@@ -108,6 +106,7 @@ $noNumberBar
   }
 }
 
+// ignore: avoid_positional_boolean_parameters
 extension FailureExtension on Failure Function([String? message, bool artificial]) {
   Failure artificial([String? message]) => this(message, true);
 }

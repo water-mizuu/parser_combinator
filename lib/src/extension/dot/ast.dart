@@ -19,7 +19,7 @@ class _Box<V> {
 }
 
 Object _combine(Object? v) => v is List ? v.map(_combine).join() : v.toString().trim();
-Object _box(Object? v) => v is List ? v.map(_box).toList() : _Box(v);
+Object _box(Object? v) => v is List ? v.map(_box).toList() : _Box<Object?>(v);
 Iterable<Object> _iterate(Object? v) sync* {
   if (v == null) {
     return;
@@ -37,20 +37,20 @@ Iterable<Object> _iterate(Object? v) sync* {
 
 Graph _generateGraph(Parser<void> parser, String input) {
   Parser<void> built = parser.build();
-  Object? cst = _box(built.peg(input).cst);
+  Object cst = _box(built.peg(input).cst);
 
   int i = 0;
-  DefaultMap<Object?, int> names = DefaultMap((_, __) => ++i);
+  DefaultMap<Object?, int> names = DefaultMap<Object?, int>((_, __) => ++i);
   Set<int> addedVertices = {};
   Set<Vertex> vertices = {};
   Set<Edge> edges = {};
-  for (Object? obj in _iterate(cst)) {
+  for (Object obj in _iterate(cst)) {
     int id = names[obj];
 
     if (addedVertices.add(id)) {
       vertices.add((id: id, label: _combine(obj).toString()));
     }
-    if (obj is Iterable) {
+    if (obj is Iterable<Object?>) {
       for (Object? c in obj) {
         edges.add((from: id, to: names[c]));
       }

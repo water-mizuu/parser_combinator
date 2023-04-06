@@ -11,19 +11,16 @@ Parser<String> _trie(Iterable<String> strings, {String? message, TrieMode? mode}
 
   return predicate(
     (context) {
-      String input = context.input;
-      int index = context.index;
+      var Context<void>(:String input, :int index) = context;
+      List<int> ends = [];
 
       Trie? derivation = trie;
-      List<int> ends = [];
       for (int i = index; i < input.length; ++i) {
         derivation = derivation?.derive(input[i]);
         if (derivation == null) {
           break;
         }
 
-        /// If the trie contains a finish node at [i],
-        /// Mark it as a potential success.
         if (derivation.hasIntermediate) {
           ends.add(i);
 
@@ -36,13 +33,13 @@ Parser<String> _trie(Iterable<String> strings, {String? message, TrieMode? mode}
       if (ends.isEmpty) {
         return context.failure(message);
       }
+
       int max = ends.last + 1;
       String substring = input.substring(index, max);
 
       return context.success(substring).replaceIndex(max);
     },
     toString: () => "TrieParser[${strings.length}]",
-    // This parser is only nullable if it can match the empty string.
     nullable: () => trie.hasIntermediate,
   );
 }

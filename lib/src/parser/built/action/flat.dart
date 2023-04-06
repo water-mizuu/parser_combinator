@@ -1,5 +1,4 @@
 import "package:parser_combinator/src/context/context.dart";
-import "package:parser_combinator/src/context/success.dart";
 import "package:parser_combinator/src/parser/base/action/piped.dart";
 import "package:parser_combinator/src/parser/base/core/abstract/parser.dart";
 

@@ -2,22 +2,33 @@ import "dart:collection";
 
 import "package:parser_combinator/parser_combinator.dart";
 
-HashMap<String, RegExp> _savedRegExp = HashMap<String, RegExp>();
-HashMap<String, Parser<String>> _savedRegExpParser = HashMap<String, Parser<String>>();
+final HashMap<String, RegExp> _savedRegExp = HashMap<String, RegExp>();
+final HashMap<String, Parser<String>> _savedRegExpParser = HashMap<String, Parser<String>>();
 
-Parser<String> regex(String pattern) {
-  RegExp regex = _savedRegExp.putIfAbsent(pattern, () => RegExp(pattern, unicode: true));
+Parser<String> regex(
+  String pattern, {
+  bool multiLine = false,
+  bool caseSensitive = true,
+  bool unicode = false,
+  bool dotAll = false,
+}) {
+  RegExp regex = _savedRegExp.putIfAbsent(
+      pattern,
+      () => RegExp(
+            pattern,
+            multiLine: multiLine,
+            caseSensitive: caseSensitive,
+            unicode: unicode,
+            dotAll: dotAll,
+          ));
 
   return _savedRegExpParser[pattern] ??= predicate(
-    (context) {
-      Match? match = regex.matchAsPrefix(context.input, context.index);
-      if (match == null) {
-        return context.failure("Expected '$pattern'");
+    (context) => switch (context) {
+      Context(:String input, :int index) => switch (regex.matchAsPrefix(input, index)) {
+        Match match => context.success(match.group(0)!).replaceIndex(match.end),
+        // ignore: unnecessary_cast
+        null => context.failure("Expected '/$pattern/'") as Context<String>,
       }
-
-      return context //
-          .success(match.groups([0])[0]!)
-          .replaceIndex(match.end);
     },
     toString: () => "/$pattern/",
     nullable: () => regex.hasMatch(""),
@@ -25,5 +36,17 @@ Parser<String> regex(String pattern) {
 }
 
 extension RegexParserStringExtension on String {
-  Parser<String> r() => regex(this);
+  Parser<String> r({
+    bool multiLine = false,
+    bool caseSensitive = true,
+    bool unicode = false,
+    bool dotAll = false,
+  }) =>
+      regex(
+        this,
+        multiLine: multiLine,
+        caseSensitive: caseSensitive,
+        unicode: unicode,
+        dotAll: dotAll,
+      );
 }

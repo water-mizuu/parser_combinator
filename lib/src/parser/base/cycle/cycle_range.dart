@@ -1,7 +1,4 @@
 import "package:parser_combinator/src/context/context.dart";
-import "package:parser_combinator/src/context/empty.dart";
-import "package:parser_combinator/src/context/failure.dart";
-import "package:parser_combinator/src/context/success.dart";
 import "package:parser_combinator/src/gll/class/trampoline.dart";
 import "package:parser_combinator/src/gll/shared/typedef.dart";
 import "package:parser_combinator/src/parser/base/core/abstract/parser.dart";
@@ -27,13 +24,20 @@ class CycleRangeParser<R> extends Parser<List<R>> with WrappingParser<List<R>, R
       if (count < max) {
         /// Unbounded loop.
         ///   Basically, it doesn't terminate lmao
+
         trampoline.add(child, context, (result) {
-          if (result is Success<R>) {
-            return _parseMaximum(result, count + 1, [...results, result.value], [...cst, result.cst]);
-          } else if (result is Empty) {
-            return _parseMaximum(result, count + 1, results, [...cst, result.cst]);
+          if (result case Success<R>()) {
+            _parseMaximum(result, count + 1, [...results, result.value], [...cst, result.cst]);
+          } else if (result case Empty()) {
+            _parseMaximum(result, count + 1, results, [...cst, result.cst]);
           }
         });
+        // trampoline.add(child, context, (result) =>
+        //   switch (result) {
+        //     Success<R> result => _parseMaximum(result, count + 1, [...results, result.value], [...cst, result.cst]),
+        //     Empty result => _parseMaximum(result, count + 1, results, [...cst, result.cst]),
+        //     _ => null,
+        //   });
       }
     }
 
@@ -43,14 +47,21 @@ class CycleRangeParser<R> extends Parser<List<R>> with WrappingParser<List<R>, R
       }
 
       trampoline.add(child, context, (result) {
-        if (result is Failure) {
-          return continuation(result);
-        } else if (result is Success<R>) {
-          return _parseMinimum(result, count + 1, [...results, result.value], [...cst, result.cst]);
-        } else if (result is Empty) {
-          return _parseMinimum(result, count + 1, results, [...cst, result.cst]);
+        if (result case Failure()) {
+          continuation(result);
+        } else if (result case Empty()) {
+          _parseMinimum(result, count + 1, results, [...cst, result.cst]);
+        } else if (result case Success<R>()) {
+          _parseMinimum(result, count + 1, [...results, result.value], [...cst, result.cst]);
         }
       });
+
+      // trampoline.add(child, context, (result) =>
+      //   switch (result) {
+      //     Failure result => continuation(result),
+      //     Empty result => _parseMinimum(result, count + 1, results, [...cst, result.cst]),
+      //     Success<R> result => _parseMinimum(result, count + 1, [...results, result.value], [...cst, result.cst]),
+      //   });
     }
 
     return _parseMinimum(context, 0, [], []);
@@ -65,9 +76,9 @@ class CycleRangeParser<R> extends Parser<List<R>> with WrappingParser<List<R>, R
     int i = 0;
     for (; i < min; ++i) {
       Context<R> result = handler.parse(child, ctx);
-      if (result is Failure) {
+      if (result case Failure()) {
         return result;
-      } else if (result is Success<R>) {
+      } else if (result case Success<R>()) {
         results.add(result.value);
       }
       cst.add(result.cst);
@@ -77,9 +88,9 @@ class CycleRangeParser<R> extends Parser<List<R>> with WrappingParser<List<R>, R
 
     for (; i < max; ++i) {
       Context<R> result = handler.parse(child, ctx);
-      if (result is Failure) {
+      if (result case Failure()) {
         return result.success(results, cst);
-      } else if (result is Success<R>) {
+      } else if (result case Success<R>()) {
         results.add(result.value);
       }
       cst.add(result.cst);
@@ -91,10 +102,10 @@ class CycleRangeParser<R> extends Parser<List<R>> with WrappingParser<List<R>, R
 
   @override
   CycleRangeParser<R> generateEmpty() {
-    return CycleRangeParser._empty(min, max);
+    return CycleRangeParser<R>._empty(min, max);
   }
 }
 
 extension CycleRangeParserExtension<R> on Parser<R> {
-  Parser<List<R>> range(num min, num max) => CycleRangeParser(this, min, max);
+  Parser<List<R>> range(num min, num max) => CycleRangeParser<R>(this, min, max);
 }

@@ -6,20 +6,19 @@ Map<String, Parser<String>> _savedString = {};
 Expando<Parser<String>> _savedRegExp = Expando();
 
 Parser<String> _pattern(Pattern pattern) => predicate(
-      (context) {
-        Match? match = pattern.matchAsPrefix(context.input, context.index);
-        if (match == null) {
-          return context.failure("Expected '$pattern'");
-        }
-
-        return context.success(context.input.substring(match.start, match.end)).replaceIndex(match.end);
-      },
+      (context) =>
+        switch (context) {
+          Context(:String input, :int index) =>
+            switch (pattern.matchAsPrefix(input, index)) {
+              Match(:int start, :int end) => context.success(input.substring(start, end)).replaceIndex(end),
+              // ignore: unnecessary_cast
+              null => context.failure("Expected '/$pattern/'") as Context<String>,
+            }
+        },
       toString: pattern is String //
           ? () => jsonEncode(pattern)
           : () => "/${(pattern as RegExp).pattern}/",
-      nullable: pattern is String //
-          ? () => pattern.isEmpty
-          : () => (pattern as RegExp).hasMatch(""),
+      nullable: () => pattern.matchAsPrefix("") != null,
     );
 Parser<String> pattern(Pattern predicate) => predicate is String
     ? _savedString[predicate] ??= _pattern(predicate)

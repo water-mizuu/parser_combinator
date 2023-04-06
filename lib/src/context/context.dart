@@ -1,15 +1,16 @@
 // ignore_for_file: avoid_positional_boolean_parameters
 
 import "package:meta/meta.dart";
-import "package:parser_combinator/src/context/empty.dart";
-import "package:parser_combinator/src/context/failure.dart";
-import "package:parser_combinator/src/context/success.dart";
+
+part "empty.dart";
+part "failure.dart";
+part "success.dart";
 
 ///
 /// Parse context used in parsing the text.
 ///
 @immutable
-abstract class Context<R> {
+sealed class Context<R> {
   ///
   /// The input buffer being parsed.
   ///
@@ -85,8 +86,8 @@ abstract class Context<R> {
   static Object? getAst<R>(Context<R> context) => context.cst;
 
   static final RegExp _spaceRegExp = RegExp("[ \t]*");
-  static final Expando<List<String>> _linesExpando = Expando();
-  static final Expando<Map<int, List<String>>> _linesToIndexExpando = Expando();
+  static final Expando<List<String>> _linesExpando = Expando<List<String>>();
+  static final Expando<Map<int, List<String>>> _linesToIndexExpando = Expando<Map<int, List<String>>>();
 
   List<String> get _lines => _linesExpando[this] ??= "$input ".split("\n");
   List<String> get _linesToIndex => (_linesToIndexExpando[this] ??= {}) //

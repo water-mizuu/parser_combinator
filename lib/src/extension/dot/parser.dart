@@ -1,10 +1,9 @@
-
 import "package:parser_combinator/parser_combinator.dart";
 import "package:parser_combinator/src/shared/graph.dart";
 
 extension ParserGraphDotExtension<R> on Parser<R> {
   Graph _generateTrueGraph() {
-    Parser<void> built = build();
+    Parser<R> built = build();
 
     int i = 0;
     Map<Parser<void>, int> ids = {};
@@ -41,8 +40,7 @@ extension ParserGraphDotExtension<R> on Parser<R> {
     Set<Edge> edges = {};
     Set<Vertex> vertices = {
       /// Register the ids of each rule.
-      for (Parser<void> rule in rules)
-        (id: grabId(rule), label: rule.toString()),
+      for (Parser<void> rule in rules) (id: grabId(rule), label: rule.toString()),
     };
 
     for (Parser<void> rule in rules) {
@@ -98,7 +96,6 @@ extension ParserGraphDotExtension<R> on Parser<R> {
             edges.add((from: descendantId, to: childId));
           }
         }
-
       }
     }
 
@@ -111,18 +108,20 @@ extension ParserGraphDotExtension<R> on Parser<R> {
   /// showing the connection between them.
   ///
   String generateRuleDotGraph({Map<int, String> ruleNames = const {}}) {
-    if (_generateRuleGraph(ruleNames: ruleNames) case (Graph graph, Set<int> ids)) {
-      return graph.generateDotFile({ for (int id in ids) id: {"shape": "box"}});
-    }
+    var (Graph graph, Set<int> ids) = _generateRuleGraph(ruleNames: ruleNames);
+
+    return graph.generateDotFile({
+      for (int id in ids) id: {"shape": "box"}
+    });
   }
 
   Graph generateRuleGraph({Map<int, String> ruleNames = const {}}) {
-    if (_generateRuleGraph(ruleNames: ruleNames) case (Graph graph, Set<int> ids)) {
-      return graph;
-    }
+    var (Graph graph, _) = _generateRuleGraph(ruleNames: ruleNames);
+
+    return graph;
   }
 
-  ///
+  ///j
   /// Generates graphviz graph that shows the relationship of
   /// all the parsers reachable from the root parser.
   ///

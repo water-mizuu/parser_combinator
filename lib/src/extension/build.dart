@@ -1,6 +1,6 @@
 import "package:parser_combinator/parser_combinator.dart";
 
-final Expando<Parser<void>> _builtParsers = Expando();
+final Expando<Parser<void>> _builtParsers = Expando<Parser<void>>();
 Parser<R> _build<R>(Parser<R> parser) => (_builtParsers[parser] ??= () {
       Parser<R> clone = parser.selfClone();
       clone.selfTransform(<R>(parser) {
@@ -21,7 +21,7 @@ extension LazyParserBuildExtension<R> on Lazy<Parser<R>> {
   /// Wraps the `Parser<R> Function()` into a [ReferenceParser],
   /// calling `.build()` after.
   ///
-  Parser<R> build() => _build(ReferenceParser(this));
+  Parser<R> build() => _build(ReferenceParser<R>(this));
 }
 
 extension ParserBuildExtension<R> on Parser<R> {

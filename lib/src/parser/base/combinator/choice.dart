@@ -1,6 +1,4 @@
 import "package:parser_combinator/src/context/context.dart";
-import "package:parser_combinator/src/context/failure.dart";
-import "package:parser_combinator/src/context/success.dart";
 import "package:parser_combinator/src/gll/class/trampoline.dart";
 import "package:parser_combinator/src/gll/shared/typedef.dart";
 import "package:parser_combinator/src/parser/base/core/abstract/parser.dart";
@@ -41,65 +39,47 @@ class ChoiceParser<R> extends Parser<R> with CombinatorParser<R> {
 
   @override
   ChoiceParser<R> generateEmpty() {
-    return ChoiceParser._empty();
+    return ChoiceParser<R>._empty();
   }
 }
 
 ///
 /// Helper method for the [ChoiceParser] constructor.
 ///
-ChoiceParser<R> choice<R>(Iterable<Parser<R>> parsers) => ChoiceParser(parsers.toList());
+ChoiceParser<R> choice<R>(Iterable<Parser<R>> parsers) => ChoiceParser<R>(parsers.toList());
+
+// extension StringChoiceParserExtension on Parser<String> {}
 
 extension ChoiceParserExtension<R> on Parser<R> {
-  Parser<Object?> operator |(Parser<Object?> other) {
-    Parser<R> self = this;
+  Parser<Object?> operator |(Parser<Object?> other) => switch (this) {
+        ChoiceParser<R>(:List<Parser<R>> children) => ChoiceParser<Object?>([...children, other]),
+        Parser<R> self => ChoiceParser<Object?>([self, other]),
+      };
 
-    if (self is ChoiceParser<R>) {
-      return ChoiceParser([...self.children, other]);
-    } else {
-      return ChoiceParser([self, other]);
-    }
-  }
-
-  Parser<R> operator /(Parser<R> other) {
-    Parser<R> self = this;
-
-    if (self is ChoiceParser<R>) {
-      return ChoiceParser([...self.children, other]);
-    } else {
-      return ChoiceParser([self, other]);
-    }
-  }
+  Parser<R> operator /(Parser<R> other) => switch (this) {
+        ChoiceParser<R>(:List<Parser<R>> children) => ChoiceParser<R>([...children, other]),
+        Parser<R> self => ChoiceParser<R>([self, other]),
+      };
 
   Parser<Object?> or(Parser<Object?> other) => this | other;
 }
 
 extension NonNullableChoiceParserExtension<R extends Object> on Parser<R> {
-  Parser<Object> operator |(Parser<Object> other) {
-    Parser<R> self = this;
+  Parser<Object> operator |(Parser<Object> other) => switch (this) {
+        ChoiceParser<R>(:List<Parser<R>> children) => ChoiceParser<Object>([...children, other]),
+        Parser<R> self => ChoiceParser<Object>([self, other]),
+      };
 
-    if (self is ChoiceParser<R>) {
-      return ChoiceParser([...self.children, other]);
-    } else {
-      return ChoiceParser([self, other]);
-    }
-  }
-
-  Parser<R> operator /(Parser<R> other) {
-    Parser<R> self = this;
-
-    if (self is ChoiceParser<R>) {
-      return ChoiceParser([...self.children, other]);
-    } else {
-      return ChoiceParser([self, other]);
-    }
-  }
+  Parser<R> operator /(Parser<R> other) => switch (this) {
+        ChoiceParser<R>(:List<Parser<R>> children) => ChoiceParser<R>([...children, other]),
+        Parser<R> self => ChoiceParser<R>([self, other]),
+      };
 
   Parser<Object> or(Parser<Object> other) => this | other;
 }
 
 extension ListChoiceParserExtension<R> on Iterable<Parser<R>> {
-  Parser<R> choice() => ChoiceParser(toList());
+  Parser<R> choice() => ChoiceParser<R>(toList());
 }
 
 extension ChoiceBuilderParserExtension on ChoiceParser<R> Function<R>(Iterable<Parser<R>> parsers) {

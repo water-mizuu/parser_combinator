@@ -26,11 +26,9 @@ class QuadraticHandler extends PegHandler {
 
   @override
   factory QuadraticHandler.tokenize(Parser<void> root, String input, [Pattern? layout]) {
-    List<Parser<void>> terms = root.traverse().where((p) => p.children.isEmpty && p.isNotNullable).toList();
-
     PrimitiveHandler primitive = PrimitiveHandler.tokenize(root, input, layout);
     QuadraticHandler self = QuadraticHandler();
-    for (Parser<void> parser in terms) {
+    for (Parser<void> parser in root.traverse().where((p) => p.children.isEmpty && p.isNotNullable)) {
       for (int index in primitive.table[parser].keys) {
         for (int indent in primitive.table[parser][index].keys) {
           self._table[parser][index][indent] = primitive.table[parser][index][indent]!.entry();

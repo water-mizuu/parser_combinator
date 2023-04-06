@@ -12,9 +12,9 @@ Parser<int> dedent() {
       }
 
       int indent = context.indent;
-      bool legal = context.indentation.isNotEmpty && context.indentation.sublist(1).contains(indent);
+      bool isLegal = context.indentation.isNotEmpty && context.indentation.sublist(1).contains(indent);
       if (indent < context.indentation[0]) {
-        if (legal) {
+        if (isLegal) {
           return context.success(indent).popIndent();
         } else {
           return context.failure("Illegal dedentation. $indent -> ${context.indentation[1]}");

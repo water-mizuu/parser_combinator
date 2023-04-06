@@ -1,5 +1,4 @@
 import "package:parser_combinator/src/context/context.dart";
-import "package:parser_combinator/src/context/failure.dart";
 import "package:parser_combinator/src/gll/class/trampoline.dart";
 import "package:parser_combinator/src/gll/shared/typedef.dart";
 import "package:parser_combinator/src/parser/base/core/abstract/parser.dart";
@@ -18,23 +17,25 @@ class ExceptParser<R> extends Parser<R> with WrappingParser<R, R> {
   @override
   void gllParseOn(Context<void> context, Trampoline trampoline, Continuation<R> continuation) {
     trampoline.add(avoid, context, (result) {
-      if (result is Failure) {
-        return trampoline.add(parser, context, continuation);
+      if (result case Failure _) {
+        trampoline.add(parser, context, continuation);
       } else {
-        return continuation(context.failure("Except failure"));
+        continuation(context.failure("Except failure"));
       }
     });
+    // trampoline.add(avoid, context, (result) =>
+    //   switch (result) {
+    //     Failure _ => trampoline.add(parser, context, continuation),
+    //     _ => continuation(context.failure("Except failure")),
+    //   });
   }
 
   @override
-  Context<R> pegParseOn(Context<void> context, PegHandler handler) {
-    Context<void> result = handler.parse(avoid, context);
-
-    if (result is Failure) {
-      return handler.parse(parser, context);
-    }
-    return context.failure("Except failure");
-  }
+  Context<R> pegParseOn(Context<void> context, PegHandler handler) =>
+    switch (handler.parse(avoid, context)) {
+      Failure _ => handler.parse(parser, context),
+      _ => context.failure("Except failure"),
+    };
 
   @override
   ExceptParser<R> generateEmpty() {

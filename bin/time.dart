@@ -7,7 +7,7 @@ void time(void Function() callback, [String? name]) {
 }
 
 String formatMicroseconds(int value) {
-  const Map<int, String> table = <int, String>{
+  const Map<int, String> table = {
     1 * 1000 * 1000 * 60 * 60 * 24 * 30 * 12: "years",
     1 * 1000 * 1000 * 60 * 60 * 24 * 30: "months",
     1 * 1000 * 1000 * 60 * 60 * 24: "days",
@@ -21,10 +21,10 @@ String formatMicroseconds(int value) {
   StringBuffer buffer = StringBuffer();
   int currentDenomination = value;
 
-  for (MapEntry<int, String> entry in table.entries) {
+  for (var MapEntry<int, String>(key: int denomination, value: String unit) in table.entries) {
     int current = 0;
-    while (entry.key <= currentDenomination) {
-      currentDenomination -= entry.key;
+    while (denomination <= currentDenomination) {
+      currentDenomination -= denomination;
       current++;
     }
 
@@ -32,7 +32,7 @@ String formatMicroseconds(int value) {
       continue;
     }
 
-    buffer.write("$current ${entry.value} ");
+    buffer.write("$current $unit ");
   }
 
   return buffer.toString().trimRight();

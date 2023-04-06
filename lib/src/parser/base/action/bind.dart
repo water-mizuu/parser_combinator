@@ -71,7 +71,7 @@ class BoundParser<R, C> extends Parser<R> with WrappingParser<R, C> {
 
   @override
   BoundParser<R, C> generateEmpty() {
-    return BoundParser._empty(function, nullable: nullable, toString: _toString);
+    return BoundParser<R, C>._empty(function, nullable: nullable, toString: _toString);
   }
 
   @override

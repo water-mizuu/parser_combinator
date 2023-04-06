@@ -1,5 +1,4 @@
 import "package:parser_combinator/src/context/context.dart";
-import "package:parser_combinator/src/context/failure.dart";
 import "package:parser_combinator/src/gll/class/trampoline.dart";
 import "package:parser_combinator/src/gll/shared/typedef.dart";
 import "package:parser_combinator/src/parser/base/core/abstract/parser.dart";
@@ -31,16 +30,17 @@ class PositiveLookaheadParser<R> extends Parser<bool> with WrappingParser<bool, 
 
     if (result is Failure) {
       return result;
+    } else {
+      return context.success(true);
     }
-    return context.success(true);
   }
 
   @override
   PositiveLookaheadParser<R> generateEmpty() {
-    return PositiveLookaheadParser._empty();
+    return PositiveLookaheadParser<R>._empty();
   }
 }
 
 extension PositiveLookaheadParserExtension<R> on Parser<R> {
-  Parser<bool> and() => PositiveLookaheadParser(this);
+  Parser<bool> and() => PositiveLookaheadParser<R>(this);
 }

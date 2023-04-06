@@ -38,19 +38,15 @@ class PreUnaryExpression implements MathExpression {
   final MathExpression value;
 
   const PreUnaryExpression(this.operator, this.value);
-  PreUnaryExpression.fromList(List<Object> list)
-      : operator = list[0] as String,
-        value = list[1] as MathExpression;
+  PreUnaryExpression.fromList(List<Object> objects)
+      : operator = objects[0] as String,
+        value = objects[1] as MathExpression;
 
   @override
-  num evaluate() {
-    switch (operator) {
-      case "-":
-        return -value.evaluate();
-      default:
-        throw StateError("Unknown operator '$value'");
-    }
-  }
+  num evaluate() => switch ((operator, value.evaluate())) {
+        ("-", num value) => -value,
+        (String op, _) => throw StateError("Unknown operator '$op'")
+      };
 
   @override
   String get infixNotation => "$operator${value.infixNotation}";
@@ -68,40 +64,34 @@ class BinaryExpression extends MathExpression {
   final MathExpression right;
 
   const BinaryExpression(this.left, this.operator, this.right);
-  BinaryExpression.fromList(List<Object> $)
-      : left = $[0] as MathExpression,
-        operator = $[1] as String,
-        right = $[2] as MathExpression;
+  BinaryExpression.fromList(List<Object> objects)
+      : left = objects[0] as MathExpression,
+        operator = objects[1] as String,
+        right = objects[2] as MathExpression;
 
   @override
-  num evaluate() {
-    switch (operator) {
-      case "+":
-        return left.evaluate() + right.evaluate();
-      case "-":
-        return left.evaluate() - right.evaluate();
-      case "*":
-        return left.evaluate() * right.evaluate();
-      case "/":
-        return left.evaluate() / right.evaluate();
-      case "~/":
-        return left.evaluate() ~/ right.evaluate();
-      case "^":
-      case "**":
-        return math.pow(left.evaluate(), right.evaluate());
-      default:
-        throw StateError("Unknown operator '$operator'");
-    }
-  }
+  num evaluate() => switch ((left.evaluate(), operator, right.evaluate())) {
+        (num left, "+", num right) => left + right,
+        (num left, "-", num right) => left - right,
+        (num left, "*", num right) => left * right,
+        (num left, "/", num right) => left / right,
+        (num left, "~/", num right) => left ~/ right,
+        (num left, "^" || "**", num right) => math.pow(left, right),
+        (_, String op, _) => throw Exception("Unknown operator '$op'"),
+      };
 
   @override
   String get infixNotation {
-    String left = this.left.infixNotation;
-    String right = this.right.infixNotation;
-    String leftFormatted = left.contains(" ") ? "($left)" : left;
-    String rightFormatted = right.contains(" ") ? "($right)" : right;
+    String left = switch (this.left.infixNotation) {
+      String l when l.contains(" ") => "($l)",
+      String l => l,
+    };
+    String right = switch (this.right.infixNotation) {
+      String r when r.contains(" ") => "($r)",
+      String r => r,
+    };
 
-    return "$leftFormatted $operator $rightFormatted";
+    return "$left $operator $right";
   }
 
   @override

@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_returning_this
 
 import "package:parser_combinator/src/context/context.dart";
-import "package:parser_combinator/src/context/failure.dart";
 import "package:parser_combinator/src/parser/base/core/abstract/parser.dart";
 
 abstract class PegHandler {
@@ -14,7 +13,7 @@ abstract class PegHandler {
     if (longestFailure == null) {
       return ctx;
     }
-    const String memoError = "seed";
+    const memoError = "seed";
 
     if (ctx.message == memoError) {
       return longestFailure;

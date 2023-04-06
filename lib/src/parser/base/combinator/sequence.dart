@@ -1,7 +1,4 @@
 import "package:parser_combinator/src/context/context.dart";
-import "package:parser_combinator/src/context/empty.dart";
-import "package:parser_combinator/src/context/failure.dart";
-import "package:parser_combinator/src/context/success.dart";
 import "package:parser_combinator/src/gll/class/trampoline.dart";
 import "package:parser_combinator/src/gll/shared/typedef.dart";
 import "package:parser_combinator/src/parser/base/core/abstract/parser.dart";
@@ -20,17 +17,19 @@ class SequenceParser<R> extends Parser<List<R>> with SequentialParser<List<R>, R
 
   @override
   void gllParseOn(Context<void> context, Trampoline trampoline, Continuation<List<R>> continuation) {
-    void _continue(Context<void> context, int index, List<R> results, List<Object?> cst) {
+    void _continue(Context<void> context, int index, List<R> accumulativeResults, List<Object?> accumulativeCst) {
       if (index >= children.length) {
-        return continuation(context.success(results, cst));
+        return continuation(context.success(accumulativeResults, accumulativeCst));
       }
+
       trampoline.add(children[index], context, (result) {
-        if (result is Failure) {
-          return continuation(result);
-        } else if (result is Success<R>) {
-          return _continue(result, index + 1, [...results, result.value], [...cst, result.cst]);
-        } else if (result is Empty) {
-          return _continue(result, index + 1, results, [...cst, result.cst]);
+        switch (result) {
+          case Failure _:
+            return continuation(result);
+          case Success(:R value, :Object? cst):
+            return _continue(result, index + 1, [...accumulativeResults, value], [...accumulativeCst, cst]);
+          case Empty(:Object? cst):
+            return _continue(result, index + 1, accumulativeResults, [...accumulativeCst, cst]);
         }
       });
     }
@@ -60,17 +59,17 @@ class SequenceParser<R> extends Parser<List<R>> with SequentialParser<List<R>, R
 
   @override
   SequenceParser<R> generateEmpty() {
-    return SequenceParser._empty();
+    return SequenceParser<R>._empty();
   }
 }
 
-SequenceParser<R> sequence<R extends Object?>(List<Parser<R>> parsers) => SequenceParser(parsers);
+SequenceParser<R> sequence<R extends Object?>(List<Parser<R>> parsers) => SequenceParser<R>(parsers);
 
 extension SequenceParserExtension<R> on Parser<R> {
   Parser<List<Object?>> operator &(Parser<Object?> other) {
     Parser<R> self = this;
 
-    return SequenceParser([self, other]);
+    return SequenceParser<Object?>([self, other]);
   }
 }
 
@@ -78,7 +77,7 @@ extension NonNullableSequenceParserExtension<R extends Object> on Parser<R> {
   Parser<List<Object>> operator +(Parser<Object> other) {
     Parser<R> self = this;
 
-    return SequenceParser([self, other]);
+    return SequenceParser<Object>([self, other]);
   }
 }
 
@@ -87,9 +86,9 @@ extension ExtendedSequenceParserExtension<R> on Parser<List<R>> {
     Parser<List<R>> self = this;
 
     if (self is SequenceParser<R>) {
-      return SequenceParser([...self.children, other]);
+      return SequenceParser<Object?>([...self.children, other]);
     } else {
-      return SequenceParser([self, other]);
+      return SequenceParser<Object?>([self, other]);
     }
   }
 }
@@ -99,13 +98,13 @@ extension NonNullableExtendedSequenceParserExtension<R extends Object> on Parser
     Parser<List<R>> self = this;
 
     if (self is SequenceParser<R>) {
-      return SequenceParser([...self.children, other]);
+      return SequenceParser<Object>([...self.children, other]);
     } else {
-      return SequenceParser([self, other]);
+      return SequenceParser<Object>([self, other]);
     }
   }
 }
 
 extension IterableSequenceParserExtension<R> on Iterable<Parser<R>> {
-  Parser<List<R>> sequence() => SequenceParser([...this]);
+  Parser<List<R>> sequence() => SequenceParser<R>([...this]);
 }

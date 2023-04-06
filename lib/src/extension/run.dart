@@ -36,17 +36,17 @@ Iterable<Context<R>> runParserGll<R>(
   String tampered = tamper ? _tamperWithString(input) : input;
 
   Trampoline _trampoline = trampoline ?? Trampoline();
-  Map<int, List<Failure>> failures = {};
+  Map<int, List<Failure>> failures = <int, List<Failure>>{};
   List<Success<R>> successes = <Success<R>>[];
 
-  Context<Never> context = Context.empty(null, tampered, 0);
+  Context<void> context = Context<Never>.empty(null, tampered);
   Parser<R> built = build ? parser.build() : parser; //
   Parser<R> withEnd = end ? built.end() : built;
 
   _trampoline.add(withEnd, context, (context) {
-    if (context is Success<R>) {
+    if (context case Success<R>()) {
       successes.add(context);
-    } else if (context is Failure) {
+    } else if (context case Failure()) {
       failures.putIfAbsent(context.index, () => []).add(context);
     }
   });
@@ -85,7 +85,7 @@ Context<R> runParserPeg<R>(
   String tampered = tamper ? _tamperWithString(input) : input;
 
   PegHandler _handler = handler ?? QuadraticHandler();
-  Context<Never> context = Context.empty(null, tampered, 0);
+  Context<void> context = Context<Never>.empty(null, tampered);
   Parser<R> built = build ? parser.build() : parser; //
   Parser<R> withEnd = end ? built.end() : built;
 

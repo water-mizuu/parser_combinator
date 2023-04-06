@@ -2,7 +2,7 @@ import "package:parser_combinator/parser_combinator.dart";
 
 // class Record1Parser<V1> extends Parser<(V1, )> with CombinatorParser {
 //   @override
-//   final List<Parser<void>> children;
+//   var List<Parser<void>> children;
 
 //   Parser<V1> get parser1 => children[0] as Parser<V1>;
 
@@ -50,7 +50,7 @@ record1<V1>
       Parser<V1>,
     ) record) {
   return sequence([
-    record.$0,
+    record.$1,
   ]).map((values) => (
     values[0],
   ));
@@ -63,8 +63,8 @@ record2<V1, V2>
       Parser<V2>,
     ) record) {
   return sequence([
-    record.$0,
     record.$1,
+    record.$2,
   ]).map((values) => (
     values[0] as V1,
     values[1] as V2,
@@ -79,9 +79,9 @@ record3<V1, V2, V3>
       Parser<V3>,
     ) record) {
   return sequence([
-    record.$0,
     record.$1,
     record.$2,
+    record.$3,
   ]).map((values) => (
     values[0] as V1,
     values[1] as V2,
@@ -98,10 +98,10 @@ record4<V1, V2, V3, V4>
       Parser<V4>,
     ) record) {
   return sequence([
-    record.$0,
     record.$1,
     record.$2,
     record.$3,
+    record.$4,
   ]).map((values) => (
     values[0] as V1,
     values[1] as V2,
@@ -120,11 +120,11 @@ record5<V1, V2, V3, V4, V5>
       Parser<V5>,
     ) record) {
   return sequence([
-    record.$0,
     record.$1,
     record.$2,
     record.$3,
     record.$4,
+    record.$5,
   ]).map((values) => (
     values[0] as V1,
     values[1] as V2,
@@ -145,12 +145,12 @@ record6<V1, V2, V3, V4, V5, V6>
       Parser<V6>,
     ) record) {
   return sequence([
-    record.$0,
     record.$1,
     record.$2,
     record.$3,
     record.$4,
     record.$5,
+    record.$6,
   ]).map((values) => (
     values[0] as V1,
     values[1] as V2,
@@ -173,13 +173,13 @@ record7<V1, V2, V3, V4, V5, V6, V7>
       Parser<V7>,
     ) record) {
   return sequence([
-    record.$0,
     record.$1,
     record.$2,
     record.$3,
     record.$4,
     record.$5,
     record.$6,
+    record.$7,
   ]).map((values) => (
     values[0] as V1,
     values[1] as V2,
@@ -204,7 +204,6 @@ record8<V1, V2, V3, V4, V5, V6, V7, V8>
       Parser<V8>,
     ) record) {
   return sequence([
-    record.$0,
     record.$1,
     record.$2,
     record.$3,
@@ -212,6 +211,7 @@ record8<V1, V2, V3, V4, V5, V6, V7, V8>
     record.$5,
     record.$6,
     record.$7,
+    record.$8,
   ]).map((values) => (
     values[0] as V1,
     values[1] as V2,
@@ -238,7 +238,6 @@ record9<V1, V2, V3, V4, V5, V6, V7, V8, V9>
       Parser<V9>,
     ) record) {
   return sequence([
-    record.$0,
     record.$1,
     record.$2,
     record.$3,
@@ -247,6 +246,7 @@ record9<V1, V2, V3, V4, V5, V6, V7, V8, V9>
     record.$6,
     record.$7,
     record.$8,
+    record.$9,
   ]).map((values) => (
     values[0] as V1,
     values[1] as V2,
@@ -275,7 +275,6 @@ record10<V1, V2, V3, V4, V5, V6, V7, V8, V9, V10>
       Parser<V10>,
     ) record) {
   return sequence([
-    record.$0,
     record.$1,
     record.$2,
     record.$3,
@@ -285,6 +284,7 @@ record10<V1, V2, V3, V4, V5, V6, V7, V8, V9, V10>
     record.$7,
     record.$8,
     record.$9,
+    record.$10,
   ]).map((values) => (
     values[0] as V1,
     values[1] as V2,
@@ -315,7 +315,6 @@ record11<V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11>
       Parser<V11>,
     ) record) {
   return sequence([
-    record.$0,
     record.$1,
     record.$2,
     record.$3,
@@ -326,6 +325,7 @@ record11<V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11>
     record.$8,
     record.$9,
     record.$10,
+    record.$11,
   ]).map((values) => (
     values[0] as V1,
     values[1] as V2,
@@ -358,7 +358,6 @@ record12<V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12>
       Parser<V12>,
     ) record) {
   return sequence([
-    record.$0,
     record.$1,
     record.$2,
     record.$3,
@@ -370,6 +369,7 @@ record12<V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12>
     record.$9,
     record.$10,
     record.$11,
+    record.$12,
   ]).map((values) => (
     values[0] as V1,
     values[1] as V2,
@@ -404,7 +404,6 @@ record13<V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12, V13>
       Parser<V13>,
     ) record) {
   return sequence([
-    record.$0,
     record.$1,
     record.$2,
     record.$3,
@@ -417,6 +416,7 @@ record13<V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12, V13>
     record.$10,
     record.$11,
     record.$12,
+    record.$13,
   ]).map((values) => (
     values[0] as V1,
     values[1] as V2,
@@ -453,7 +453,6 @@ record14<V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12, V13, V14>
       Parser<V14>,
     ) record) {
   return sequence([
-    record.$0,
     record.$1,
     record.$2,
     record.$3,
@@ -467,6 +466,7 @@ record14<V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12, V13, V14>
     record.$11,
     record.$12,
     record.$13,
+    record.$14,
   ]).map((values) => (
     values[0] as V1,
     values[1] as V2,
@@ -505,7 +505,6 @@ record15<V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12, V13, V14, V15>
       Parser<V15>,
     ) record) {
   return sequence([
-    record.$0,
     record.$1,
     record.$2,
     record.$3,
@@ -520,6 +519,7 @@ record15<V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12, V13, V14, V15>
     record.$12,
     record.$13,
     record.$14,
+    record.$15,
   ]).map((values) => (
     values[0] as V1,
     values[1] as V2,

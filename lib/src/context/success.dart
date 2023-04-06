@@ -1,5 +1,4 @@
-import "package:meta/meta.dart";
-import "package:parser_combinator/src/context/context.dart";
+part of "context.dart";
 
 @optionalTypeArgs
 @immutable

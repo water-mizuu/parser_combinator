@@ -13,7 +13,8 @@ PV _stringParser() =>
 
 PV _numberParser() => regex(r"-?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?").tnl();
 
-PV _arrayParser() => (_jsonParser.$()) //
+PV _arrayParser() => _jsonParser
+    .$() //
     .separated(string(",").tnl())
     .surrounded(string("[").tnl(), string("]").tnl());
 
@@ -22,8 +23,8 @@ PV _jsonParser() =>
     _arrayParser.$() |
     _numberParser.$() |
     _stringParser.$() |
-    string("true").onSuccess(true) |
-    string("false").onSuccess(false) |
-    string("null").onSuccess(null)
+    string("true") |
+    string("false") |
+    string("null")
     //
     ;

@@ -49,8 +49,8 @@ Parser<String> _doubleChar() => _delimitedSingle('"'.p());
 // Parser<num> _number() => [_decimal(), _integer()].firstChoice();
 
 // IDENTIFIER
-Parser<String> _identifier() => r"[A-Za-zΑ-Ωα-ω\_\$\:][A-Za-zΑ-Ωα-ω0-9\_\$\-]*".r();
-Parser<String> _cIdentifier() => r"[A-Za-z\_\$\:][A-Za-z0-9\_\$]*".r();
+Parser<String> _identifier() => r"[A-Za-zΑ-Ωα-ω_$:][A-Za-zΑ-Ωα-ω0-9_$\-]*".r();
+Parser<String> _cIdentifier() => r"[A-Za-z_$:][A-Za-z0-9_$]*".r();
 
 // OPERATOR
 Parser<String> _operator() => r"[<>=!\/&^%+\-#*~]+".r();
@@ -65,14 +65,18 @@ Parser<num> __whole() => "[0-9]+".r().map(num.parse);
 Parser<num> __fraction() => r"\.[0-9]+".r().map(num.parse).onFailure(0);
 Parser<num> __eMark() => "[Ee]".r().onSuccess(1);
 Parser<num> __eSign() => "[+-]".r().onSuccess(1).onFailure(-1);
-Parser<num> __power() => ([__eMark.$(), __eSign.$(), __whole.$()].sequence()) //
+Parser<num> __power() => [__eMark.$(), __eSign.$(), __whole.$()]
+    .sequence() //
     .map((v) => pow(10, v[0] * v[1] * v[2]))
     .onFailure(1);
-Parser<num> __base() => ([__whole.$(), __fraction.$()].sequence()) //
+Parser<num> __base() => [__whole.$(), __fraction.$()]
+    .sequence() //
     .map((v) => v[0] + v[1]);
-Parser<num> _completeNumber() => ([__base.$(), __power.$()].sequence()) //
+Parser<num> _completeNumber() => [__base.$(), __power.$()]
+    .sequence() //
     .map((v) => v[0] * v[1]);
-Parser<num> _jsonNumber() => ([__sign.$(), __base.$(), __power.$()].sequence()) //
+Parser<num> _jsonNumber() => [__sign.$(), __base.$(), __power.$()]
+    .sequence() //
     .map((v) => v[0] * v[1] * v[2]);
 
 Parser<Object> __controlCharBody() =>

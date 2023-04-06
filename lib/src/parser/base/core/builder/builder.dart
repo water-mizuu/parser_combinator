@@ -25,7 +25,6 @@ extension<R extends Object> on R {
   O _pipe<O>(O Function(R) function) => function(this);
 }
 
-@optionalTypeArgs
 class ExpressionBuilder<T> {
   final List<ExpressionGroup<T>> expressionGroups = <ExpressionGroup<T>>[];
   final Parser<T> mirror = blank();
@@ -36,7 +35,7 @@ class ExpressionBuilder<T> {
     if (expressionGroups.isEmpty) {
       throw UnsupportedError("An empty builder cannot be built!");
     }
-    Parser<T> minimum = failure("An expression builder should define an atomic parser.");
+    Parser<T> minimum = failure<T>("An expression builder should define an atomic parser.");
     Parser<T> built = expressionGroups.fold(minimum, (a, group) => group.build(a)..pegMemoize = true);
     built.replace(mirror, built);
 
@@ -66,14 +65,14 @@ class ExpressionGroup<T> {
   Parser<T> _buildLeft(Parser<T> previous) => _left.isEmpty
       ? previous
       : (previous & (_left.choice() & previous).star()).map(($) {
-          T head = $[0].cast();
+          T head = $[0].cast<T>();
           List<Object?> tail = $[1].cast<List<List<Object?>>>().expand((v) => v).toList();
-          List<Object?> flattened = [head, ...tail];
+          List<Object?> flattened = <Object?>[head, ...tail];
 
           T left = head;
           for (int i = 1; i < flattened.length - 1; i += 2) {
-            InfixWrapper<T, void> handler = flattened[i].cast();
-            T right = flattened[i + 1].cast();
+            InfixWrapper<T, void> handler = flattened[i].cast<InfixWrapper<T, void>>();
+            T right = flattened[i + 1].cast<T>();
 
             left = handler.evaluate(left, right);
           }
@@ -87,14 +86,14 @@ class ExpressionGroup<T> {
   Parser<T> _buildRight(Parser<T> previous) => _right.isEmpty
       ? previous
       : (previous & (_right.choice() & previous).star()).map(($) {
-          T head = $[0].cast();
+          T head = $[0].cast<T>();
           List<Object?> tail = $[1].cast<List<List<Object?>>>().expand((v) => v).toList();
-          List<Object?> flattened = [head, ...tail];
+          List<Object?> flattened = <Object?>[head, ...tail];
 
           T right = flattened.last as T;
           for (int i = flattened.length - 1; i >= 1; i -= 2) {
-            InfixWrapper<T, void> handler = flattened[i - 1].cast();
-            T left = flattened[i - 2].cast();
+            InfixWrapper<T, void> handler = flattened[i - 1].cast<InfixWrapper<T, void>>();
+            T left = flattened[i - 2].cast<T>();
 
             right = handler.evaluate(left, right);
           }
@@ -113,9 +112,7 @@ class ExpressionGroup<T> {
   Parser<T> _buildPre(Parser<T> previous) => _pre.isEmpty
       ? previous
       : (_pre.choice().star() & previous).map(($) {
-          List<PrefixWrapper<T, void>> wrapper = $[0].cast();
-          T result = $[1].cast();
-
+          var [wrapper as List<PrefixWrapper<T, void>>, result as T] = $;
           for (int i = wrapper.length - 1; i >= 0; i--) {
             result = wrapper[i].evaluate(result);
           }
@@ -124,13 +121,11 @@ class ExpressionGroup<T> {
   ExpressionGroup<T> pre<O>(Parser<O> parser, MonoidPrefixHandler<T, O> handler) =>
       this.._pre.add(parser.map((op) => PrefixWrapper<T, O>(op, handler)));
 
-  List<Parser<PostfixWrapper<T, void>>> _post = [];
+  final List<Parser<PostfixWrapper<T, void>>> _post = [];
   Parser<T> _buildPost(Parser<T> previous) => _post.isEmpty
       ? previous
       : (previous & _post.choice().star()).map(($) {
-          T result = $[0].cast();
-          List<PostfixWrapper<T, void>> wrapper = $[1].cast();
-
+          var [result as T, wrapper as List<PostfixWrapper<T, void>>] = $;
           for (int i = 0; i < wrapper.length; ++i) {
             result = wrapper[i].evaluate(result);
           }

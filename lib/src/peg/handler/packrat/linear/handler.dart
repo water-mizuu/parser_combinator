@@ -11,19 +11,12 @@ class LinearHandler extends PegHandler {
 
   LinearHandler();
   factory LinearHandler.tokenize(Parser<void> root, String input, [Pattern? layout]) {
-    List<Parser<void>> terms = root.traverse().where((p) => p.children.isEmpty).toList();
-    Parser<void> terminals = terms.choice().trimNewline(layout, layout).plus();
-
-    PrimitiveHandler primitive = PrimitiveHandler();
-    Context<void> result = terminals.pegParseOn(Context.empty(input), primitive);
-    if (result is Failure) {
-      throw Exception(result.generateFailureMessage());
-    }
+    PrimitiveHandler primitive = PrimitiveHandler.tokenize(root, input, layout);
     LinearHandler self = LinearHandler();
-    for (Parser<void> parser in terms) {
+    for (Parser<void> parser in root.traverse().where((p) => p.children.isEmpty && p.isNotNullable)) {
       for (int index in primitive.table[parser].keys) {
         for (int indent in primitive.table[parser][index].keys) {
-          self._table[parser][index][indent] = primitive.table[parser][index][indent] ?? Context.empty();
+          self._table[parser][index][indent] = primitive.table[parser][index][indent]!;
         }
       }
     }
@@ -45,11 +38,13 @@ class LinearHandler extends PegHandler {
       }
 
       while (true) {
-        Context<R> inner = parser.pegParseOn(context, this);
-        if (inner is Failure || inner.index <= ctx.index) {
-          return ctx;
+        switch (parser.pegParseOn(context, this)) {
+          case Failure inner when inner.index <= ctx.index:
+            return ctx;
+          case Context<R> inner:
+            ctx = row[index][indent] = inner;
+            break;
         }
-        ctx = row[index][indent] = inner;
       }
     } else {
       return entry;

@@ -10,7 +10,9 @@ Parser<String> _string(String pattern) => saved[pattern] ??= predicate(
           return context.failure("Expected '$pattern'");
         }
 
-        return context.success(pattern).replaceIndex(match.end);
+        return context //
+            .success(pattern)
+            .replaceIndex(match.end);
       },
       toString: () => jsonEncode(pattern),
       nullable: () => pattern.isEmpty,

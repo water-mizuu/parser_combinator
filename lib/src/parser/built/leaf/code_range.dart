@@ -1,12 +1,11 @@
+import "package:parser_combinator/src/context/context.dart";
 import "package:parser_combinator/src/parser/base/core/abstract/parser.dart";
 import "package:parser_combinator/src/parser/base/special/context_predicate.dart";
 
-final Map<int, Map<int, Parser<String>>> _saved = {};
+final Map<(int, int), Parser<String>> _saved = {};
 Parser<String> _codeRange(int low, int high) => predicate(
       (context) {
-        String input = context.input;
-        int index = context.index;
-
+        var Context(:String input, :int index) = context;
         if (index >= input.length) {
           return context.failure("Unexpected end of input.");
         }
@@ -22,8 +21,7 @@ Parser<String> _codeRange(int low, int high) => predicate(
     );
 
 Parser<String> codeRange(int low, int high) => _saved //
-    .putIfAbsent(low, Map.new)
-    .putIfAbsent(high, () => _codeRange(low, high));
+    .putIfAbsent((low, high), () => _codeRange(low, high));
 
 extension StringCodeUnitExtension on String {
   int get unit => codeUnitAt(0);

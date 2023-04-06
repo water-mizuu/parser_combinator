@@ -1,16 +1,40 @@
-import "package:parser_combinator/example/asciimath/grammar.dart";
-import "package:parser_combinator/example/reversed_polish_notation/reversed_polish_notation.dart";
+import "package:parser_combinator/example.dart";
 import "package:parser_combinator/parser_combinator.dart";
+import "package:parser_combinator/src/extension/ascii_tree/parser.dart";
+import "package:parser_combinator/src/shared/multi_map.dart";
 
 void main() {
-  Parser<num> number = rpnParser();
-  String input = "124 354 + (378 -) -";
+  Trie trie = Trie.from(["hello", "hi", "five", "hell"]);
 
-  for (Context<num> result in number.gll(input)) {
-    if (result.tryUnwrap() case num value) {
-      print("It succeeded!\n$value");
-    }
-  }
+  String something = "iiii";
+  print(trie.keys);
 
-  print(MathTranslator().run("frac(3 + 2)(4_512) 3/(2 + 3x)"));
+  /// h
+  ///   e
+  ///     l
+  ///       l
+  ///         .
+  ///         o
+  ///           .
+  ///   i
+  ///     .
+  /// f
+  ///   i
+  ///     v
+  ///       e
+
+  // Parser<num> number = rpnParser();
+  // String input = "124 354 + 378 200 - - +";
+
+  // Context<num> context = number.gll(input).first;
+  // print(switch (context) {
+  //   Success(:num value) => "$value",
+  //   Failure(:String failureMessage) => failureMessage,
+  //   Empty _ => "",
+  // });
+
+  print(asciiMathToTex("frac(3 + 2)(4_512) 3/(2 + 3x)"));
+  print(asciiMathToTex("sqrt(3_(500))"));
+
+  // print(regex("(?:abc)*").isNullable);
 }

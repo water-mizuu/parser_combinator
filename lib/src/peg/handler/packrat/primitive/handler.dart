@@ -9,10 +9,10 @@ class PrimitiveHandler extends PegHandler {
   PrimitiveHandler();
   factory PrimitiveHandler.tokenize(Parser<void> root, String input, [Pattern? layout]) {
     List<Parser<void>> terms = root.traverse().where((p) => p.isTerminal && p.isNotNullable).toList();
-    Parser<void> terminals = terms.choice().trimNewline(layout, layout).plus();
+    Parser<List<void>> terminals = terms.choice().trimNewline(layout, layout).plus();
 
     PrimitiveHandler handler = PrimitiveHandler();
-    Context<void> result = terminals.pegParseOn(Context.empty(input), handler);
+    Context<List<void>> result = terminals.pegParseOn(Context.empty(input), handler);
     if (result is Failure) {
       throw Exception(result.generateFailureMessage());
     }

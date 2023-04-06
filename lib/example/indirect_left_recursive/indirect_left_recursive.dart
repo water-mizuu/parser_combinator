@@ -9,6 +9,7 @@ import "package:parser_combinator/parser_combinator.dart";
 /// A regular version can be written as:
 /// ```
 /// A = "ab"* "a"
+/// B = "ba"* "b"
 /// ```
 Parser<void> indirectLeftRecursiveParser() => A.build();
 

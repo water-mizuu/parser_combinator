@@ -9,14 +9,14 @@ class FirstChoiceParser<R> extends ChoiceParser<R> {
 
   @override
   void gllParseOn(Context<void> context, Trampoline trampoline, Continuation<R> continuation) {
-    void _add(int i) {
-      if (i >= children.length) {
+    void _add(int iteration) {
+      if (iteration >= children.length) {
         return continuation(context.failure("First Choice Failure"));
       }
 
-      trampoline.add(children[i], context, (result) {
-        if (result is Failure && i < children.length - 1) {
-          _add(i + 1);
+      trampoline.add(children[iteration], context, (result) {
+        if (result case Failure() when iteration < children.length - 1) {
+          _add(iteration + 1);
         } else {
           return continuation(result);
         }

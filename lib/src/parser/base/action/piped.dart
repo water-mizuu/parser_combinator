@@ -36,7 +36,7 @@ class PipedParser<R, C> extends Parser<R> with WrappingParser<R, C> {
 
   @override
   PipedParser<R, C> generateEmpty() {
-    return PipedParser._empty(function, toString: _toString);
+    return PipedParser<R, C>._empty(function, toString: _toString);
   }
 
   @override
@@ -48,14 +48,14 @@ extension PipedParserExtension<C> on Parser<C> {
   /// Pipes a parser with a [PipedParser].
   ///
   Parser<R> pipe<R>(PipedParserFunction<R, C> function, {String Function()? toString}) =>
-      PipedParser(this, function, toString: toString);
+      PipedParser<R, C>(this, function, toString: toString);
 
   ///
   /// Only pipes the parser when the result is a [Success].
   ///
   Parser<R> pipeSuccess<R>(PipedParserFunction<R, C> function, {String Function()? toString}) =>
-      PipedParser(this, (from, to) {
-        if (to case Success<C> to) {
+      PipedParser<R, C>(this, (from, to) {
+        if (to case Success<C>()) {
           return function(from, to);
         } else {
           return to as Context<Never>;

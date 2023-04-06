@@ -45,24 +45,24 @@ Parser<String> unaryOperators = trie(["!", "-", "sqrt"]).trim(layout, layout);
 /// unary-op = "!" | "-" | "sqrt"
 /// atom = /\d+/
 /// ```
-Parser<num> rpnParser() =>
-    (rpnParser.$(), rpnParser.$(), binaryOperators).sequence().map(($) => //
+Parser<num> pnParser() =>
+    (binaryOperators, pnParser.$(), pnParser.$()).sequence().map(($) => //
         switch ($) {
-          (num l, num r, "+") => l + r,
-          (num l, num r, "-") => l - r,
-          (num l, num r, "*") => l * r,
-          (num l, num r, "/") => l / r,
-          (num l, num r, "~/") => l ~/ r,
-          (num l, num r, "%") => l % r,
-          (num l, num r, "^" || "**") => pow(l, r),
-          (_, _, String o) => throw Exception("Unknown operator '$o'"),
+          ("+", num l, num r) => l + r,
+          ("-", num l, num r) => l - r,
+          ("*", num l, num r) => l * r,
+          ("/", num l, num r) => l / r,
+          ("~/", num l, num r) => l ~/ r,
+          ("%", num l, num r) => l % r,
+          ("^" || "**", num l, num r) => pow(l, r),
+          (String o, _, _) => throw Exception("Unknown operator '$o'"),
         }) / //
-    (rpnParser.$(), unaryOperators).sequence().map(($) => //
+    (unaryOperators, pnParser.$()).sequence().map(($) => //
         switch ($) {
-          (num v, "sqrt") => sqrt(v),
-          (num v, "-") => -v,
-          (num v, "!") => piFunction(v),
-          (_, String o) => throw Exception("Unknown operator '$o'"),
+          ("sqrt", num v) => sqrt(v),
+          ("-", num v) => -v,
+          ("!", num v) => piFunction(v),
+          (String o, _) => throw Exception("Unknown operator '$o'"),
         }) / //
-    rpnParser.$().between("(".tok(), ")".tok()) /
+    pnParser.$().between("(".tok(), ")".tok()) /
     regex(r"\d+").trim().map(num.parse);

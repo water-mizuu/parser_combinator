@@ -45,24 +45,29 @@ class Trampoline {
   void add<R>(Parser<R> parser, Context<void> context, Continuation<R> continuation) {
     parser.captureGeneric(<C>(parser) {
       Continuation<C> _continuation = continuation as Continuation<C>;
-      ParserEntry<C> entry = table //
+
+      var ParserEntry<C>(
+        :bool isEmpty,
+        :List<Continuation<C>> continuations,
+        :HashSet<Context<C>> results,
+      ) = table
           .putIfAbsent(parser, HashMap.new)
           .putIfAbsent(context.indentation.first, HashMap.new)
           .putIfAbsent(context.index, ParserEntry<C>.new) as ParserEntry<C>;
 
-      if (entry.isEmpty) {
-        entry.continuations.add(_continuation);
-        stack.add(CallAction(parser, context, (result) {
-          if (entry.results.add(result)) {
-            for (int i = 0; i < entry.continuations.length; ++i) {
-              stack.add(ContinueAction(result, entry.continuations[i]));
+      if (isEmpty) {
+        continuations.add(_continuation);
+        stack.add(CallAction<C>(parser, context, (result) {
+          if (results.add(result)) {
+            for (Continuation<C> continuation in continuations) {
+              stack.add(ContinueAction<C>(result, continuation));
             }
           }
         }));
       } else {
-        entry.continuations.add(_continuation);
-        for (Context<C> result in entry.results) {
-          stack.add(ContinueAction(result, _continuation));
+        continuations.add(_continuation);
+        for (Context<C> result in results) {
+          stack.add(ContinueAction<C>(result, _continuation));
         }
       }
     });

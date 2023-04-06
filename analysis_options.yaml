@@ -7,16 +7,13 @@ analyzer:
     # - extension-types
     - inference-update-2
     - patterns
-    # - sealed-class
-    - views
+    - sealed-class
     # - macros
     # - test-experiment
   language:
     strict-inference: true
     strict-raw-types: true
-  strong-mode:
-    implicit-casts: false
-    implicit-dynamic: false
+    strict-casts: true
   exclude:
     - lib/**/*.*.dart
     - lib/*.*.dart
@@ -29,7 +26,7 @@ analyzer:
 linter:
   rules:
     - always_declare_return_types
-    - always_put_control_body_on_new_line
+    # - always_put_control_body_on_new_line
     - always_put_required_named_parameters_first
     - always_require_non_null_named_parameters
     # - always_specify_types
@@ -69,7 +66,7 @@ linter:
     - avoid_slow_async_io
     - avoid_type_to_string
     - avoid_types_as_parameter_names
-    - avoid_types_on_closure_parameters
+    # - avoid_types_on_closure_parameters
     - avoid_unnecessary_containers
     - avoid_unused_constructor_parameters
     # - avoid_void_async
@@ -138,7 +135,6 @@ linter:
     - prefer_constructors_over_static_methods
     - prefer_contains
     - prefer_double_quotes
-    - prefer_equal_for_default_values
     # - prefer_expression_function_bodies
     # - prefer_final_fields
     # - prefer_final_in_for_each
@@ -196,7 +192,7 @@ linter:
     # - unnecessary_overrides
     - unnecessary_parenthesis
     - unnecessary_raw_strings
-    - unnecessary_statements
+    # - unnecessary_statements
     - unnecessary_string_escapes
     - unnecessary_string_interpolations
     - unnecessary_this
