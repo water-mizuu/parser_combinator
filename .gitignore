@@ -24,3 +24,5 @@ doc/api/
 .history/**
 
 assets/
+bin/
+bin/**

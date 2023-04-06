@@ -4,11 +4,6 @@ import "package:parser_combinator/src/extension/ascii_tree/parser.dart";
 import "package:parser_combinator/src/shared/multi_map.dart";
 
 void main() {
-  Trie trie = Trie.from(["hello", "hi", "five", "hell"]);
-
-  String something = "iiii";
-  print(trie.keys);
-
   /// h
   ///   e
   ///     l
