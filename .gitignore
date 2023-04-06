@@ -21,8 +21,9 @@ doc/api/
 *.js.map
 
 # Avoid adding the large file history.
+.history
 .history/**
 
 assets/
-bin/
+bin
 bin/**
