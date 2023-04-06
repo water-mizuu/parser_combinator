@@ -31,17 +31,14 @@ class DefaultMap<K, V> with MapMixin<K, V> implements Map<K, V> {
 ///
 /// A [DefaultMap] but with weak keys.
 ///
-class DefaultExpando<K extends Object, V extends Object> implements Expando<V> {
-  @override
+class DefaultExpando<K extends Object, V extends Object> {
   final String? name;
   final Expando<V> inner;
   final V Function(DefaultExpando<K, V>, K) backup;
 
   DefaultExpando(this.backup, [this.name]) : inner = Expando();
 
-  @override
   V operator [](covariant K key) => inner[key] ??= backup(this, key);
 
-  @override
   void operator []=(covariant K key, V? value) => inner[key] = value;
 }
