@@ -1,15 +1,16 @@
 // ignore_for_file: literal_only_boolean_expressions
 
-import "package:parser_combinator/example/asciimath/definitions.dart";
 import "package:parser_combinator/parser_combinator.dart";
 
-class _MathTranslator extends PegGrammar<String> with AsciiMathDefinitions {
+part "definitions.dart";
+
+class _MathTranslator extends PegGrammar<String> with _AsciiMathDefinitions {
   const _MathTranslator();
 
-  static Parser<String> untrimmedAsciiMathSymbolsIn(List<AsciiMathConversion> symbol) =>
+  static Parser<String> untrimmedAsciiMathSymbolsIn(List<_AsciiMathConversion> symbol) =>
       symbol.map((r) => r.asciimath).trie();
 
-  static Parser<String> asciiMathSymbolsIn(List<AsciiMathConversion> symbol) =>
+  static Parser<String> asciiMathSymbolsIn(List<_AsciiMathConversion> symbol) =>
       symbol.map((r) => r.asciimath).trie().trim();
 
   @override
@@ -121,7 +122,7 @@ class _MathTranslator extends PegGrammar<String> with AsciiMathDefinitions {
       });
 
   Parser<String> binary() => (binaryOperator.$() + operator.$().trimRight() + operator.$()).map(($) {
-        var [conversion as AsciiMathConversion, left as String, right as String] = $;
+        var [conversion as _AsciiMathConversion, left as String, right as String] = $;
         String op = conversion.tex ?? conversion.asciimath;
         var (String unwrappedLeft, String unwrappedRight) = (unwrap(left), unwrap(right));
 
@@ -132,7 +133,7 @@ class _MathTranslator extends PegGrammar<String> with AsciiMathDefinitions {
         }
       });
   Parser<String> unary() => (unaryOperator.$(), atomic.$()).sequence().map(($) {
-        var (AsciiMathConversion conversion, String value) = $;
+        var (_AsciiMathConversion conversion, String value) = $;
         String op = conversion.tex ?? conversion.asciimath;
         String unwrapped = unwrap(value);
 
@@ -143,8 +144,8 @@ class _MathTranslator extends PegGrammar<String> with AsciiMathDefinitions {
       });
 
   Parser<String> greekLetter() => asciiMathSymbolsIn(greekLetters).map((k) => symbolMap[k]?.tex ?? k);
-  Parser<AsciiMathConversion> binaryOperator() => asciiMathSymbolsIn(binarySymbols).map((k) => symbolMap[k]!);
-  Parser<AsciiMathConversion> unaryOperator() => asciiMathSymbolsIn(unarySymbols).map((k) => symbolMap[k]!);
+  Parser<_AsciiMathConversion> binaryOperator() => asciiMathSymbolsIn(binarySymbols).map((k) => symbolMap[k]!);
+  Parser<_AsciiMathConversion> unaryOperator() => asciiMathSymbolsIn(unarySymbols).map((k) => symbolMap[k]!);
 
   Parser<String> leftBracket() => asciiMathSymbolsIn(leftBracketSymbols) //
       .map((k) => "\\left${symbolMap[k]?.tex ?? k}");
@@ -187,6 +188,7 @@ class _MathTranslator extends PegGrammar<String> with AsciiMathDefinitions {
 
 const _MathTranslator _instance = _MathTranslator();
 
+/// Parses an `AsciiMath` expression into equivalent `LaTeX`.
 String asciiMathToTex(String input) => _instance.run(input).unwrap();
 
 extension on String {
