@@ -12,30 +12,30 @@ num piFunction(num x) {
   return double.parse(product.toStringAsFixed(3));
 }
 
-Parser<String> binaryOperators = trie(["^", "**", "*", "/", "%", "~/", "-", "+"]).trim(layout, layout);
-Parser<String> unaryOperators = trie(["!", "-", "sqrt"]).trim(layout, layout);
+final Parser<String> binaryOperators = trie(<String>["^", "**", "*", "/", "%", "~/", "-", "+"]).trim(layout, layout);
+final Parser<String> unaryOperators = trie(<String>["!", "-", "sqrt"]).trim(layout, layout);
 
 /// A parser that purposely uses ambiguity. <br>
 /// This only properly works with gll parsing.
 /// The definition of the grammar is:
 /// ```dart
-/// E = E E binary-op {
-///       switch ($3) {
-///         "+" => $1 + $2,
-///         "-" => $1 - $2,
-///         "*" => $1 * $2,
-///         "%" => $1 % $2,
-///         "/" => $1 / $2,
-///         "~/" => $1 ~/ $2,
-///         "^" || "**" => $1 ^ $2,
+/// E = binary-op E E {
+///       switch ($1) {
+///         "+" => $2 + $3,
+///         "-" => $2 - $3,
+///         "*" => $2 * $3,
+///         "%" => $2 % $3,
+///         "/" => $2 / $3,
+///         "~/" => $2 ~/ $3,
+///         "^" || "**" => $2 ^ $3,
 ///         var v => throw "Unknown operator $v",
 ///       }
 ///     }
-///   | E unary-op {
-///       switch ($2) {
-///         "sqrt" => sqrt($1),
-///         "-" => -$0,
-///         "!" => Π($1),
+///   | unary-op E {
+///       switch ($1) {
+///         "sqrt" => sqrt($2),
+///         "-" => -$2,
+///         "!" => Π($2),
 ///         var v => throw "Unknown operator $v",
 ///       }
 ///     }
@@ -46,7 +46,7 @@ Parser<String> unaryOperators = trie(["!", "-", "sqrt"]).trim(layout, layout);
 /// atom = /\d+/
 /// ```
 Parser<num> pnParser() =>
-    (binaryOperators, pnParser.$(), pnParser.$()).sequence().map(($) => //
+    (binaryOperators, pnParser.$(), pnParser.$()).sequence().map(((String, num, num) $) => //
         switch ($) {
           ("+", num l, num r) => l + r,
           ("-", num l, num r) => l - r,
@@ -57,7 +57,7 @@ Parser<num> pnParser() =>
           ("^" || "**", num l, num r) => pow(l, r),
           (String o, _, _) => throw Exception("Unknown operator '$o'"),
         }) / //
-    (unaryOperators, pnParser.$()).sequence().map(($) => //
+    (unaryOperators, pnParser.$()).sequence().map(((String, num) $) => //
         switch ($) {
           ("sqrt", num v) => sqrt(v),
           ("-", num v) => -v,

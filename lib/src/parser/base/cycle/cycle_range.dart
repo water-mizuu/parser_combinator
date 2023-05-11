@@ -11,8 +11,8 @@ class CycleRangeParser<R> extends Parser<List<R>> with WrappingParser<List<R>, R
   final num min;
   final num max;
 
-  CycleRangeParser(Parser<R> parser, this.min, this.max) : children = [parser];
-  CycleRangeParser._empty(this.min, this.max) : children = [];
+  CycleRangeParser(Parser<R> parser, this.min, this.max) : children = <Parser<R>>[parser];
+  CycleRangeParser._empty(this.min, this.max) : children = <Parser<R>>[];
 
   @override
   void gllParseOn(Context<void> context, Trampoline trampoline, Continuation<List<R>> continuation) {
@@ -25,11 +25,11 @@ class CycleRangeParser<R> extends Parser<List<R>> with WrappingParser<List<R>, R
         /// Unbounded loop.
         ///   Basically, it doesn't terminate lmao
 
-        trampoline.add(child, context, (result) {
+        trampoline.add(child, context, (Context<R> result) {
           if (result case Success<R>()) {
-            _parseMaximum(result, count + 1, [...results, result.value], [...cst, result.cst]);
+            _parseMaximum(result, count + 1, <R>[...results, result.value], <Object?>[...cst, result.cst]);
           } else if (result case Empty()) {
-            _parseMaximum(result, count + 1, results, [...cst, result.cst]);
+            _parseMaximum(result, count + 1, results, <Object?>[...cst, result.cst]);
           }
         });
         // trampoline.add(child, context, (result) =>
@@ -46,13 +46,13 @@ class CycleRangeParser<R> extends Parser<List<R>> with WrappingParser<List<R>, R
         return _parseMaximum(context, count, results, cst);
       }
 
-      trampoline.add(child, context, (result) {
+      trampoline.add(child, context, (Context<R> result) {
         if (result case Failure()) {
           continuation(result);
         } else if (result case Empty()) {
-          _parseMinimum(result, count + 1, results, [...cst, result.cst]);
+          _parseMinimum(result, count + 1, results, <Object?>[...cst, result.cst]);
         } else if (result case Success<R>()) {
-          _parseMinimum(result, count + 1, [...results, result.value], [...cst, result.cst]);
+          _parseMinimum(result, count + 1, <R>[...results, result.value], <Object?>[...cst, result.cst]);
         }
       });
 
@@ -64,13 +64,13 @@ class CycleRangeParser<R> extends Parser<List<R>> with WrappingParser<List<R>, R
       //   });
     }
 
-    return _parseMinimum(context, 0, [], []);
+    return _parseMinimum(context, 0, <R>[], <Object?>[]);
   }
 
   @override
   Context<List<R>> pegParseOn(Context<void> context, PegHandler handler) {
-    List<R> results = [];
-    List<Object?> cst = [];
+    List<R> results = <R>[];
+    List<Object?> cst = <Object?>[];
 
     Context<void> ctx = context;
     int i = 0;

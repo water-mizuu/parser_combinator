@@ -2,7 +2,7 @@ import "package:parser_combinator/parser_combinator.dart";
 
 Parser<String> startOfInput() {
   return predicate(
-    (context) {
+    (Context<void> context) {
       if (context.index <= 0) {
         return context.success("start-of-input");
       }
@@ -13,5 +13,5 @@ Parser<String> startOfInput() {
 }
 
 extension StartParserExtension<R> on Parser<R> {
-  Parser<R> start() => sequence([startOfInput(), this]).map(($) => $[0].cast());
+  Parser<R> start() => sequence(<Parser<Object?>>[startOfInput(), this]).map((List<Object?> $) => $[0].cast());
 }

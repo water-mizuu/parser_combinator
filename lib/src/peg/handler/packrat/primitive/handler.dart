@@ -3,16 +3,15 @@ import "package:parser_combinator/src/extension/traverse.dart";
 import "package:parser_combinator/src/parser.dart";
 import "package:parser_combinator/src/peg/handler/abstract/handler.dart";
 import "package:parser_combinator/src/peg/handler/packrat/linear/typedef.dart";
-import "package:parser_combinator/src/shared/default_map.dart";
 
 class PrimitiveHandler extends PegHandler {
   PrimitiveHandler();
   factory PrimitiveHandler.tokenize(Parser<void> root, String input, [Pattern? layout]) {
-    List<Parser<void>> terms = root.traverse().where((p) => p.isTerminal && p.isNotNullable).toList();
+    List<Parser<void>> terms = root.traverse().where((Parser<void> p) => p.isTerminal && p.isNotNullable).toList();
     Parser<List<void>> terminals = terms.choice().trimNewline(layout, layout).plus();
 
     PrimitiveHandler handler = PrimitiveHandler();
-    Context<List<void>> result = terminals.pegParseOn(Context.empty(input), handler);
+    Context<List<void>> result = terminals.pegParseOn(Context<void>.empty(input), handler);
     if (result is Failure) {
       throw Exception(result.generateFailureMessage());
     }
@@ -20,7 +19,7 @@ class PrimitiveHandler extends PegHandler {
     return handler;
   }
 
-  final ParsingTable table = ParsingTable((_, __) => DefaultMap((_, __) => {}));
+  final ParsingTable table = createParsingTable();
 
   Context<R> parseMemoized<R>(Parser<R> parser, Context<void> context) {
     int index = context.index;

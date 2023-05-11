@@ -12,8 +12,8 @@ class ChoiceParser<R> extends Parser<R> with CombinatorParser<R> {
   @override
   final List<Parser<R>> children;
 
-  ChoiceParser(this.children);
-  ChoiceParser._empty() : children = [];
+  ChoiceParser(this.children) : assert(children.isEmpty, "Combinators should not be empty!");
+  ChoiceParser._empty() : children = <Parser<R>>[];
 
   @override
   void gllParseOn(Context<void> context, Trampoline trampoline, Continuation<R> continuation) {
@@ -52,13 +52,13 @@ ChoiceParser<R> choice<R>(Iterable<Parser<R>> parsers) => ChoiceParser<R>(parser
 
 extension ChoiceParserExtension<R> on Parser<R> {
   Parser<Object?> operator |(Parser<Object?> other) => switch (this) {
-        ChoiceParser<R>(:List<Parser<R>> children) => ChoiceParser<Object?>([...children, other]),
-        Parser<R> self => ChoiceParser<Object?>([self, other]),
+        ChoiceParser<R>(:List<Parser<R>> children) => ChoiceParser<Object?>(<Parser<Object?>>[...children, other]),
+        Parser<R> self => ChoiceParser<Object?>(<Parser<Object?>>[self, other]),
       };
 
   Parser<R> operator /(Parser<R> other) => switch (this) {
-        ChoiceParser<R>(:List<Parser<R>> children) => ChoiceParser<R>([...children, other]),
-        Parser<R> self => ChoiceParser<R>([self, other]),
+        ChoiceParser<R>(:List<Parser<R>> children) => ChoiceParser<R>(<Parser<R>>[...children, other]),
+        Parser<R> self => ChoiceParser<R>(<Parser<R>>[self, other]),
       };
 
   Parser<Object?> or(Parser<Object?> other) => this | other;
@@ -66,13 +66,13 @@ extension ChoiceParserExtension<R> on Parser<R> {
 
 extension NonNullableChoiceParserExtension<R extends Object> on Parser<R> {
   Parser<Object> operator |(Parser<Object> other) => switch (this) {
-        ChoiceParser<R>(:List<Parser<R>> children) => ChoiceParser<Object>([...children, other]),
-        Parser<R> self => ChoiceParser<Object>([self, other]),
+        ChoiceParser<R>(:List<Parser<R>> children) => ChoiceParser<Object>(<Parser<Object>>[...children, other]),
+        Parser<R> self => ChoiceParser<Object>(<Parser<Object>>[self, other]),
       };
 
   Parser<R> operator /(Parser<R> other) => switch (this) {
-        ChoiceParser<R>(:List<Parser<R>> children) => ChoiceParser<R>([...children, other]),
-        Parser<R> self => ChoiceParser<R>([self, other]),
+        ChoiceParser<R>(:List<Parser<R>> children) => ChoiceParser<R>(<Parser<R>>[...children, other]),
+        Parser<R> self => ChoiceParser<R>(<Parser<R>>[self, other]),
       };
 
   Parser<Object> or(Parser<Object> other) => this | other;

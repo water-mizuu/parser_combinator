@@ -5,12 +5,12 @@ import "dart:collection";
 ///
 class DefaultMap<K, V> with MapMixin<K, V> implements Map<K, V> {
   final HashMap<K, V> inner;
-  final V Function(DefaultMap<K, V>, K) backup;
+  final V Function(DefaultMap<K, V>) backup;
 
-  DefaultMap(this.backup) : inner = HashMap();
+  DefaultMap(this.backup) : inner = HashMap<K, V>();
 
   @override
-  V operator [](covariant K key) => inner[key] ??= backup(this, key);
+  V operator [](covariant K key) => inner[key] ??= backup(this);
 
   @override
   void operator []=(K key, V value) => inner[key] = value;
@@ -25,7 +25,7 @@ class DefaultMap<K, V> with MapMixin<K, V> implements Map<K, V> {
   Iterable<V> get values => inner.values;
 
   @override
-  V remove(covariant K key) => inner.remove(key) ?? backup(this, key);
+  V remove(covariant K key) => inner.remove(key) ?? backup(this);
 }
 
 ///
@@ -34,11 +34,11 @@ class DefaultMap<K, V> with MapMixin<K, V> implements Map<K, V> {
 class DefaultExpando<K extends Object, V extends Object> {
   final String? name;
   final Expando<V> inner;
-  final V Function(DefaultExpando<K, V>, K) backup;
+  final V Function(DefaultExpando<K, V>) backup;
 
-  DefaultExpando(this.backup, [this.name]) : inner = Expando();
+  DefaultExpando(this.backup, [this.name]) : inner = Expando<V>();
 
-  V operator [](covariant K key) => inner[key] ??= backup(this, key);
+  V operator [](covariant K key) => inner[key] ??= backup(this);
 
   void operator []=(covariant K key, V? value) => inner[key] = value;
 }

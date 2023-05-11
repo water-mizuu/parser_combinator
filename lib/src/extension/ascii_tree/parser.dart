@@ -30,7 +30,7 @@ String _generateAsciiTree(
     List<Parser<void>> children = parser.children.toList();
     String newIndent = "$indent${isLast ? "   " : "│  "}";
 
-    buffer.writeAll([
+    buffer.writeAll(<String>[
       for (int i = 0; i < children.length; ++i)
         _generateAsciiTree(built, rules, children[i], newIndent, isLast: i == children.length - 1, level: level + 1)
     ]);
@@ -46,7 +46,7 @@ extension AsciiTreeParserExtension<R> on Parser<R> {
     StringBuffer buffer = StringBuffer();
     int i = 0;
 
-    Map<Parser<void>, int> rules = {for (Parser<void> p in this.rules()) p: ++i};
+    Map<Parser<void>, int> rules = <Parser<void>, int>{for (Parser<void> p in this.rules()) p: ++i};
 
     for (Parser<void> p in rules.keys) {
       buffer

@@ -11,16 +11,16 @@ String _tamperWithString(String input) {
   String removed = input.trimRight().replaceAll("\r", "").replaceAll("\t", "    ");
 
   // Remove trailing right space.
-  Iterable<String> lines = removed.split("\n").map((line) => line.trimRight());
+  Iterable<String> lines = removed.split("\n").map((String line) => line.trimRight());
 
   // Unindent the string.
   int commonIndentation = lines //
-      .where((line) => line.isNotEmpty)
-      .map((line) => line.length - line.trimLeft().length)
+      .where((String line) => line.isNotEmpty)
+      .map((String line) => line.length - line.trimLeft().length)
       .reduce(min);
 
   Iterable<String> unindented = lines //
-      .map((line) => line.isEmpty ? line : line.substring(commonIndentation));
+      .map((String line) => line.isEmpty ? line : line.substring(commonIndentation));
 
   return unindented.join("\n");
 }
@@ -28,6 +28,7 @@ String _tamperWithString(String input) {
 Iterable<Context<R>> runParserGll<R>(
   Parser<R> parser,
   String input, {
+  int index = 0,
   bool build = true,
   bool tamper = true,
   bool end = true,
@@ -39,15 +40,15 @@ Iterable<Context<R>> runParserGll<R>(
   Map<int, List<Failure>> failures = <int, List<Failure>>{};
   List<Success<R>> successes = <Success<R>>[];
 
-  Context<void> context = Context<Never>.empty(null, tampered);
+  Context<void> context = Context<Never>.empty(null, tampered, index);
   Parser<R> built = build ? parser.build() : parser; //
   Parser<R> withEnd = end ? built.end() : built;
 
-  _trampoline.add(withEnd, context, (context) {
+  _trampoline.add(withEnd, context, (Context<R> context) {
     if (context case Success<R>()) {
       successes.add(context);
     } else if (context case Failure()) {
-      failures.putIfAbsent(context.index, () => []).add(context);
+      failures.putIfAbsent(context.index, () => <Failure>[]).add(context);
     }
   });
 
@@ -65,7 +66,7 @@ Iterable<Context<R>> runParserGll<R>(
   } while (_trampoline.stack.isNotEmpty);
 
   if (!hasYielded && failures.isNotEmpty) {
-    int max = failures.keys.reduce((a, b) => a > b ? a : b);
+    int max = failures.keys.reduce((int a, int b) => a > b ? a : b);
 
     yield* failures[max]!;
   }
@@ -77,6 +78,7 @@ Iterable<Context<R>> runParserGll<R>(
 Context<R> runParserPeg<R>(
   Parser<R> parser,
   String input, {
+  int index = 0,
   bool build = true,
   bool tamper = true,
   bool end = true,
@@ -85,7 +87,7 @@ Context<R> runParserPeg<R>(
   String tampered = tamper ? _tamperWithString(input) : input;
 
   PegHandler _handler = handler ?? QuadraticHandler();
-  Context<void> context = Context<Never>.empty(null, tampered);
+  Context<void> context = Context<Never>.empty(null, tampered, index);
   Parser<R> built = build ? parser.build() : parser; //
   Parser<R> withEnd = end ? built.end() : built;
 
@@ -94,6 +96,7 @@ Context<R> runParserPeg<R>(
 
 typedef PegRunFn<R> = Context<R> Function(
   String input, {
+  int index,
   bool build,
   bool tamper,
   bool end,
@@ -101,6 +104,7 @@ typedef PegRunFn<R> = Context<R> Function(
 });
 typedef GllRunFn<R> = Iterable<Context<R>> Function(
   String input, {
+  int index,
   bool build,
   bool tamper,
   bool end,
@@ -114,12 +118,13 @@ extension RunParserExtension<R> on Parser<R> {
   ///
   Context<R> peg(
     String input, {
+    int index = 0,
     bool build = true,
     bool tamper = true,
     bool end = true,
     PegHandler? handler,
   }) =>
-      runParserPeg(this, input, build: build, tamper: tamper, end: end, handler: handler);
+      runParserPeg(this, input, index: index, build: build, tamper: tamper, end: end, handler: handler);
 
   ///
   /// Runs a parser grammar using `GLL implementation`.
@@ -127,12 +132,13 @@ extension RunParserExtension<R> on Parser<R> {
   ///
   Iterable<Context<R>> gll(
     String input, {
+    int index = 0,
     bool build = true,
     bool tamper = true,
     bool end = true,
     Trampoline? trampoline,
   }) =>
-      runParserGll(this, input, build: build, tamper: tamper, end: end, trampoline: trampoline);
+      runParserGll(this, input, index: index, build: build, tamper: tamper, end: end, trampoline: trampoline);
 }
 
 extension LazyRunParserExtension<R> on Lazy<Parser<R>> {
@@ -142,12 +148,13 @@ extension LazyRunParserExtension<R> on Lazy<Parser<R>> {
   ///
   Context<R> peg(
     String input, {
+    int index = 0,
     bool build = true,
     bool tamper = true,
     bool end = true,
     PegHandler? handler,
   }) =>
-      runParserPeg($(), input, build: build, tamper: tamper, end: end, handler: handler);
+      runParserPeg($(), input, index: index, build: build, tamper: tamper, end: end, handler: handler);
 
   ///
   /// Runs a parser grammar using `GLL implementation`.
@@ -155,12 +162,13 @@ extension LazyRunParserExtension<R> on Lazy<Parser<R>> {
   ///
   Iterable<Context<R>> gll(
     String input, {
+    int index = 0,
     bool build = true,
     bool tamper = true,
     bool end = true,
     Trampoline? trampoline,
   }) =>
-      runParserGll($(), input, build: build, tamper: tamper, end: end, trampoline: trampoline);
+      runParserGll($(), input, index: index, build: build, tamper: tamper, end: end, trampoline: trampoline);
 }
 
 extension PegRecognizeExtension<R> on PegRunFn<R> {
@@ -170,12 +178,13 @@ extension PegRecognizeExtension<R> on PegRunFn<R> {
   ///
   bool recognize(
     String input, {
+    int index = 0,
     bool build = true,
     bool tamper = true,
     bool end = true,
     PegHandler? handler,
   }) =>
-      this(input, build: build, tamper: tamper, end: end, handler: handler) is Success;
+      this(input, index: index, build: build, tamper: tamper, end: end, handler: handler) is Success;
 
   ///
   /// A helper method that changes the handler type of the `PEG specification`.
@@ -185,6 +194,7 @@ extension PegRecognizeExtension<R> on PegRunFn<R> {
   ///
   Context<R> primitive(
     String input, {
+    int index = 0,
     bool build = true,
     bool tamper = true,
     bool end = true,
@@ -192,6 +202,7 @@ extension PegRecognizeExtension<R> on PegRunFn<R> {
   }) =>
       this(
         input,
+        index: index,
         build: build,
         tamper: tamper,
         end: end,
@@ -206,6 +217,7 @@ extension PegRecognizeExtension<R> on PegRunFn<R> {
   ///
   Context<R> linear(
     String input, {
+    int index = 0,
     bool build = true,
     bool tamper = true,
     bool end = true,
@@ -213,6 +225,7 @@ extension PegRecognizeExtension<R> on PegRunFn<R> {
   }) =>
       this(
         input,
+        index: index,
         build: build,
         tamper: tamper,
         end: end,
@@ -227,6 +240,7 @@ extension PegRecognizeExtension<R> on PegRunFn<R> {
   ///
   Context<R> quadratic(
     String input, {
+    int index = 0,
     bool build = true,
     bool tamper = true,
     bool end = true,
@@ -234,6 +248,7 @@ extension PegRecognizeExtension<R> on PegRunFn<R> {
   }) =>
       this(
         input,
+        index: index,
         build: build,
         tamper: tamper,
         end: end,
@@ -246,10 +261,11 @@ extension GllRecognizeExtension<R> on GllRunFn<R> {
   /// `accepts` or `rejects` an input in `GLL specification`.
   bool recognize(
     String input, {
+    int index = 0,
     bool build = true,
     bool tamper = true,
     bool end = true,
     Trampoline? trampoline,
   }) =>
-      this(input, build: build, tamper: tamper, end: end, trampoline: trampoline).first is Success;
+      this(input, index: index, build: build, tamper: tamper, end: end, trampoline: trampoline).first is Success;
 }

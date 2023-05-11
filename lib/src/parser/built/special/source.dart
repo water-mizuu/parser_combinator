@@ -1,6 +1,6 @@
 import "package:parser_combinator/parser_combinator.dart";
 
-final Parser<String> _anySingleton = predicate((context) {
+final Parser<String> _anySingleton = predicate((Context<void> context) {
   String input = context.input;
   int index = context.index;
 

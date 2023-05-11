@@ -1,7 +1,7 @@
 name: parser_combinator
 # cspell:disable
 environment:
-  sdk: ">=3.0.0-0"
+  sdk: ">=3.0.0"
 
 dependencies:
   # ansicolor:
@@ -73,7 +73,8 @@ dependencies:
   # weak_map:
   # yaml:
 
-dev_dependencies: {}
+dev_dependencies:
+  {}
   # build_runner:
   # copy_with_extension_gen:
   # dependency_validator:

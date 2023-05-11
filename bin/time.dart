@@ -1,15 +1,16 @@
+import "dart:io";
+
 void time(void Function() callback, [String? name]) {
   Stopwatch watch = Stopwatch()..start();
   callback();
   watch.stop();
 
-  print("Time: ${formatMicroseconds(watch.elapsedMicroseconds)}");
+  stdout.writeln("Time: ${formatMicroseconds(watch.elapsedMicroseconds)}");
 }
 
 String formatMicroseconds(int value) {
-  const Map<int, String> table = {
-    1 * 1000 * 1000 * 60 * 60 * 24 * 30 * 12: "years",
-    1 * 1000 * 1000 * 60 * 60 * 24 * 30: "months",
+  const Map<int, String> table = <int, String>{
+    1 * 1000 * 1000 * 60 * 60 * 24 * 365: "years",
     1 * 1000 * 1000 * 60 * 60 * 24: "days",
     1 * 1000 * 1000 * 60 * 60: "hr",
     1 * 1000 * 1000 * 60: "m",
@@ -28,7 +29,7 @@ String formatMicroseconds(int value) {
       current++;
     }
 
-    if (current == 0) {
+    if (current <= 0) {
       continue;
     }
 

@@ -1,7 +1,7 @@
 import "package:parser_combinator/parser_combinator.dart";
 
 Parser<R> _expand<R, C>(Parser<C> parser, ExpandedParserFunction<R, C> visitor) {
-  return parser.pipe(toString: () => "ExpandedParser", (_, context) {
+  return parser.pipe(toString: () => "ExpandedParser", (_, Context<C> context) {
     if (context is Success<C>) {
       return visitor(context.value).inherit(context);
     }

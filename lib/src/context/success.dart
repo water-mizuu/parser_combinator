@@ -12,8 +12,13 @@ class Success<R> extends Context<R> {
   @override
   String get message => throw UnsupportedError("`Success<$R>` does not have an error message!");
 
-  const Success(this.value, [Object? cst, super.input = "", super.index = 0, super.indentation = const [0]])
-      : cst = cst ?? value;
+  const Success(
+    this.value, [
+    Object? cst,
+    super.input = "",
+    super.index = 0,
+    super.indentation = const <int>[0],
+  ]) : cst = cst ?? value;
 
   @override
   R unwrap() => value;
@@ -32,7 +37,7 @@ class Success<R> extends Context<R> {
       Success<R>(value, cst, context.input, context.index, context.indentation);
 
   @override
-  Success<R> pushIndent(int indent) => Success<R>(value, cst, input, index, [indent, ...indentation]);
+  Success<R> pushIndent(int indent) => Success<R>(value, cst, input, index, <int>[indent, ...indentation]);
 
   @override
   Success<R> popIndent() => Success<R>(value, cst, input, index, indentation.sublist(1));

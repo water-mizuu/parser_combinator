@@ -4,7 +4,7 @@ import "package:parser_combinator/src/parser/base/core/mixin/childless_parser.da
 import "package:parser_combinator/src/parser/base/core/mixin/united_parser.dart";
 import "package:parser_combinator/src/shared/typedef.dart";
 
-class ContextPredicateParser<R> extends Parser<R> with UnitedParser, ChildlessParser {
+class ContextPredicateParser<R> extends Parser<R> with UnitedParser<R>, ChildlessParser<R> {
   final String Function()? _toString;
   final bool Function()? _nullable;
 
@@ -35,4 +35,4 @@ Parser<R> predicate<R>(
   bool Function()? nullable,
   String Function()? toString,
 }) =>
-    ContextPredicateParser(predicate, nullable: nullable, toString: toString);
+    ContextPredicateParser<R>(predicate, nullable: nullable, toString: toString);

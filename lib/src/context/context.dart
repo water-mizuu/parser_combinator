@@ -32,11 +32,30 @@ sealed class Context<R> {
   const factory Context.failure(String message, [String input, int index]) = Failure;
   const factory Context.empty([Object? cst, String input, int index]) = Empty;
 
+  ///
+  /// Replaces the int [index] of a [Context] object.
+  ///
   Context<R> replaceIndex(int index);
+
+  ///
+  /// Replaces the String [input] of a [Context] object.
+  ///
   Context<R> replaceInput(String input);
+
+  ///
+  /// Returns a new [Context] that takes from the given [context],
+  ///   although keeping its generic type.
+  ///
   Context<R> inherit<I>(Context<I> context);
 
+  ///
+  /// Returns a new [Context] object with one indent value added.
+  ///
   Context<R> pushIndent(int indent);
+
+  ///
+  /// Returns a new [Context] object with one indent value removed.
+  ///
   Context<R> popIndent();
 
   ///
@@ -64,11 +83,25 @@ sealed class Context<R> {
   Empty empty([Object? cst, int? index]) => //
       Empty(cst, input, index ?? this.index, indentation);
 
+  ///
+  /// Casts a [Context] to another generic [Context].
+  ///
   @pragma("vm:prefer-inline")
   Context<O> cast<O>() => this as Context<O>;
 
+  ///
+  /// The value that is successfully parsed that is returned by a parser.
+  ///
   R get value;
+
+  ///
+  /// The value that is successfully parsed without any processing.
+  ///
   Object? get cst;
+
+  ///
+  /// The error message returned from a parsing failure.
+  ///
   String get message;
 
   ///
@@ -85,12 +118,12 @@ sealed class Context<R> {
   static String getMessage<R>(Context<R> context) => context.message;
   static Object? getAst<R>(Context<R> context) => context.cst;
 
-  static final RegExp _spaceRegExp = RegExp("[ \t]*");
+  static final RegExp _spaceRegExp = RegExp(r"[ \t]*");
   static final Expando<List<String>> _linesExpando = Expando<List<String>>();
   static final Expando<Map<int, List<String>>> _linesToIndexExpando = Expando<Map<int, List<String>>>();
 
   List<String> get _lines => _linesExpando[this] ??= "$input ".split("\n");
-  List<String> get _linesToIndex => (_linesToIndexExpando[this] ??= {}) //
+  List<String> get _linesToIndex => (_linesToIndexExpando[this] ??= <int, List<String>>{}) //
       .putIfAbsent(index, () => "$input ".substring(0, index + 1).split("\n"));
 
   ///
@@ -109,5 +142,9 @@ sealed class Context<R> {
   ///
   int get indent => _spaceRegExp.matchAsPrefix(_lines[this.line - 1])?.end ?? 0;
 
+  ///
+  /// Returns the string representation of the current [line] and [column]
+  ///   from the [index] at the format of "[line], [column]"
+  ///
   String get location => "$line, $column";
 }

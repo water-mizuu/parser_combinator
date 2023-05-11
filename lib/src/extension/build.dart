@@ -3,7 +3,7 @@ import "package:parser_combinator/parser_combinator.dart";
 final Expando<Parser<void>> _builtParsers = Expando<Parser<void>>();
 Parser<R> _build<R>(Parser<R> parser) => (_builtParsers[parser] ??= () {
       Parser<R> clone = parser.selfClone();
-      clone.selfTransform(<R>(parser) {
+      clone.selfTransform(<R>(Parser<R> parser) {
         if (parser is ReferenceParser<R>) {
           return parser.computed..pegMemoize = true;
         }

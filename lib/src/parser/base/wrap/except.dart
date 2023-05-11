@@ -11,12 +11,12 @@ class ExceptParser<R> extends Parser<R> with WrappingParser<R, R> {
   Parser<void> get avoid => children[0];
   Parser<R> get parser => children[1] as Parser<R>;
 
-  ExceptParser(Parser<R> child, Parser<void> avoid) : children = [avoid, child];
-  ExceptParser._empty() : children = [];
+  ExceptParser(Parser<R> child, Parser<void> avoid) : children = <Parser<void>>[avoid, child];
+  ExceptParser._empty() : children = <Parser<void>>[];
 
   @override
   void gllParseOn(Context<void> context, Trampoline trampoline, Continuation<R> continuation) {
-    trampoline.add(avoid, context, (result) {
+    trampoline.add(avoid, context, (Context<void> result) {
       if (result case Failure _) {
         trampoline.add(parser, context, continuation);
       } else {
@@ -31,19 +31,18 @@ class ExceptParser<R> extends Parser<R> with WrappingParser<R, R> {
   }
 
   @override
-  Context<R> pegParseOn(Context<void> context, PegHandler handler) =>
-    switch (handler.parse(avoid, context)) {
-      Failure _ => handler.parse(parser, context),
-      _ => context.failure("Except failure"),
-    };
+  Context<R> pegParseOn(Context<void> context, PegHandler handler) => switch (handler.parse(avoid, context)) {
+        Failure _ => handler.parse(parser, context),
+        _ => context.failure("Except failure"),
+      };
 
   @override
   ExceptParser<R> generateEmpty() {
-    return ExceptParser._empty();
+    return ExceptParser<R>._empty();
   }
 }
 
 extension ExceptParserExtension<R> on Parser<R> {
-  Parser<R> except(Parser<void> avoid) => ExceptParser(this, avoid);
-  Parser<R> operator -(Parser<void> avoid) => ExceptParser(this, avoid);
+  Parser<R> except(Parser<void> avoid) => ExceptParser<R>(this, avoid);
+  Parser<R> operator -(Parser<void> avoid) => ExceptParser<R>(this, avoid);
 }

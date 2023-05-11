@@ -2,17 +2,13 @@ import "dart:convert";
 
 import "package:parser_combinator/parser_combinator.dart";
 
-final Map<String, Parser<String>> saved = {};
+final Map<String, Parser<String>> saved = <String, Parser<String>>{};
 Parser<String> _string(String pattern) => saved[pattern] ??= predicate(
-      (context) {
-        Match? match = pattern.matchAsPrefix(context.input, context.index);
-        if (match == null) {
-          return context.failure("Expected '$pattern'");
-        }
-
-        return context //
-            .success(pattern)
-            .replaceIndex(match.end);
+      (Context<void> context) => switch (context) {
+        Context<void>(:String input, :int index) => switch (pattern.matchAsPrefix(input, index)) {
+            Match(:int end) => context.success(pattern).replaceIndex(end),
+            null => context.failure("Expected '$pattern'") as Context<String>,
+          }
       },
       toString: () => jsonEncode(pattern),
       nullable: () => pattern.isEmpty,

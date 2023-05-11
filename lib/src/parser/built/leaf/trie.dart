@@ -10,9 +10,9 @@ Parser<String> _trie(Iterable<String> strings, {String? message, TrieMode? mode}
   Trie trie = Trie.from(strings);
 
   return predicate(
-    (context) {
+    (Context<void> context) {
       var Context<void>(:String input, :int index) = context;
-      List<int> ends = [];
+      List<int> ends = <int>[];
 
       Trie? derivation = trie;
       for (int i = index; i < input.length; ++i) {

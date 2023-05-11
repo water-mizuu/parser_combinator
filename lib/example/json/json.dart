@@ -2,9 +2,11 @@ import "package:parser_combinator/parser_combinator.dart";
 
 typedef PV = Parser<Object?>;
 
+/// An example parser combinator setup that parses JSON text without
+///   converting them into proper Map/List/Objects.
 Parser<Object?> jsonParser() => _jsonParser.build();
 
-PV _mapParser() => (_stringParser.$() & string(":").tnl() & _jsonParser.$())
+PV _mapParser() => (_stringParser.r$ & string(":").tnl() & _jsonParser.r$)
     .separated(string(",").tnl())
     .surrounded(string("{").tnl(), string("}").tnl());
 
@@ -13,16 +15,15 @@ PV _stringParser() =>
 
 PV _numberParser() => regex(r"-?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?").tnl();
 
-PV _arrayParser() => _jsonParser
-    .$() //
+PV _arrayParser() => _jsonParser.r$ //
     .separated(string(",").tnl())
     .surrounded(string("[").tnl(), string("]").tnl());
 
 PV _jsonParser() =>
-    _mapParser.$() | //
-    _arrayParser.$() |
-    _numberParser.$() |
-    _stringParser.$() |
+    _mapParser.r$ | //
+    _arrayParser.r$ |
+    _numberParser.r$ |
+    _stringParser.r$ |
     string("true") |
     string("false") |
     string("null")

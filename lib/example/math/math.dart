@@ -2,7 +2,7 @@ import "dart:math" as math;
 
 import "package:parser_combinator/parser_combinator.dart";
 
-abstract class MathExpression {
+sealed class MathExpression {
   const MathExpression();
   factory MathExpression.constant(num value) = ConstantExpression;
   factory MathExpression.preUnary(List<Object> list) = PreUnaryExpression.fromList;

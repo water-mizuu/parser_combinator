@@ -2,8 +2,8 @@ import "package:parser_combinator/parser_combinator.dart";
 
 Parser<Never> _drop(Parser<void> parser) {
   return parser.bind(
-    [empty<Never>()],
-    ($, _) => $[0].cast(),
+    <Parser<void>>[empty<Never>()],
+    (List<Parser<void>> $, _) => $[0].cast(),
   );
 }
 

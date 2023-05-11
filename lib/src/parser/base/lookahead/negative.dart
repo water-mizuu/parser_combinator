@@ -10,12 +10,12 @@ class NegativeLookaheadParser<R> extends Parser<bool> with WrappingParser<bool, 
   final List<Parser<R>> children;
   Parser<R> get parser => children[0];
 
-  NegativeLookaheadParser(Parser<R> child) : children = [child];
-  NegativeLookaheadParser._empty() : children = [];
+  NegativeLookaheadParser(Parser<R> child) : children = <Parser<R>>[child];
+  NegativeLookaheadParser._empty() : children = <Parser<R>>[];
 
   @override
   void gllParseOn(Context<void> context, Trampoline trampoline, Continuation<bool> continuation) {
-    trampoline.add(parser, context, (result) {
+    trampoline.add(parser, context, (Context<R> result) {
       if (result is Failure) {
         return continuation(context.success(true));
       } else {

@@ -11,7 +11,7 @@ Parser<R> _where<R>(
 }) {
   message ??= "Where predicate failure.";
 
-  return parser.pipe(toString: () => "WhereParser", (_, context) {
+  return parser.pipe(toString: () => "WhereParser", (_, Context<R> context) {
     if (context is Success<R>) {
       if (predicate(context.value)) {
         return context;

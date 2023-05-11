@@ -12,8 +12,8 @@ num piFunction(num x) {
   return double.parse(product.toStringAsFixed(3));
 }
 
-Parser<String> binaryOperators = trie(["^", "**", "*", "/", "%", "~/", "-", "+"]).trim(layout, layout);
-Parser<String> unaryOperators = trie(["!", "-", "sqrt"]).trim(layout, layout);
+final Parser<String> binaryOperators = trie(<String>["^", "**", "*", "/", "%", "~/", "-", "+"]).trim(layout, layout);
+final Parser<String> unaryOperators = trie(<String>["!", "-", "sqrt"]).trim(layout, layout);
 
 /// A parser that purposely uses ambiguity. <br>
 /// This only properly works with gll parsing.
@@ -46,7 +46,7 @@ Parser<String> unaryOperators = trie(["!", "-", "sqrt"]).trim(layout, layout);
 /// atom = /\d+/
 /// ```
 Parser<num> rpnParser() =>
-    (rpnParser.$(), rpnParser.$(), binaryOperators).sequence().map(($) => //
+    (rpnParser.$(), rpnParser.$(), binaryOperators).sequence().map(((num, num, String) $) => //
         switch ($) {
           (num l, num r, "+") => l + r,
           (num l, num r, "-") => l - r,
@@ -57,7 +57,7 @@ Parser<num> rpnParser() =>
           (num l, num r, "^" || "**") => pow(l, r),
           (_, _, String o) => throw Exception("Unknown operator '$o'"),
         }) / //
-    (rpnParser.$(), unaryOperators).sequence().map(($) => //
+    (rpnParser.$(), unaryOperators).sequence().map(((num, String) $) => //
         switch ($) {
           (num v, "sqrt") => sqrt(v),
           (num v, "-") => -v,

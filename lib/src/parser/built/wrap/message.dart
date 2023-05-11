@@ -2,7 +2,7 @@ import "package:parser_combinator/parser_combinator.dart";
 
 Parser<R> _message<R>(Parser<R> parser, String message) {
   return parser.pipe(
-    (_, result) {
+    (_, Context<R> result) {
       if (result is Failure) {
         return result.failure(message);
       }

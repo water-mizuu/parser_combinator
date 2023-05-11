@@ -2,7 +2,7 @@ import "package:parser_combinator/parser_combinator.dart";
 
 Parser<R> _onFailure<R>(Parser<R> parser, R value) {
   return parser.pipe(
-    (_, result) => switch (result) {
+    (_, Context<R> result) => switch (result) {
       Failure failure => failure.success(value),
       Context<R> context => context,
     },

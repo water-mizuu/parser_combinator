@@ -1,7 +1,7 @@
 import "package:parser_combinator/parser_combinator.dart";
 
 Parser<R> _surrounded<R>(Parser<R> parser, Parser<void> left, Parser<void> right) {
-  return sequence([left, parser, right]).map((r) => r[1] as R);
+  return sequence(<Parser<void>>[left, parser, right]).map((List<void> r) => r[1] as R);
 }
 
 extension SurroundedParserExtension<R> on Parser<R> {

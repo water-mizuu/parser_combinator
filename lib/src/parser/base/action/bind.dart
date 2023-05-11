@@ -28,13 +28,13 @@ class BoundParser<R, C> extends Parser<R> with WrappingParser<R, C> {
     this.function, {
     this.nullable = false,
     String Function()? toString,
-  })  : children = [child, ...children],
+  })  : children = <Parser<void>>[child, ...children],
         _toString = toString;
   BoundParser._empty(
     this.function, {
     required this.nullable,
     required String Function()? toString,
-  })  : children = [],
+  })  : children = <Parser<void>>[],
         _toString = toString;
 
   Parser<R> callBound(Context<C> context) {
@@ -46,7 +46,7 @@ class BoundParser<R, C> extends Parser<R> with WrappingParser<R, C> {
 
   @override
   void gllParseOn(Context<void> context, Trampoline trampoline, Continuation<R> continuation) {
-    return trampoline.add(child, context, (result) {
+    return trampoline.add(child, context, (Context<C> result) {
       if (result is Failure) {
         return continuation(result);
       } else {
@@ -88,7 +88,7 @@ extension BoundParserExtension<C> on Parser<C> {
     bool nullable = false,
     String Function()? toString,
   }) =>
-      BoundParser(
+      BoundParser<R, C>(
         this,
         children,
         function,

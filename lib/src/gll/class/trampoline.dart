@@ -2,8 +2,6 @@ import "dart:collection";
 
 import "package:parser_combinator/parser_combinator.dart";
 import "package:parser_combinator/src/gll/class/action.dart";
-import "package:parser_combinator/src/gll/class/call.dart";
-import "package:parser_combinator/src/gll/class/continue.dart";
 
 ///
 /// Class that simulates tail call optimization using
@@ -43,7 +41,7 @@ class Trampoline {
   /// Pushes a [Parser] into the `GLL process`.
   ///
   void add<R>(Parser<R> parser, Context<void> context, Continuation<R> continuation) {
-    parser.captureGeneric(<C>(parser) {
+    parser.captureGeneric(<C>(Parser<C> parser) {
       Continuation<C> _continuation = continuation as Continuation<C>;
 
       var ParserEntry<C>(
@@ -57,7 +55,7 @@ class Trampoline {
 
       if (isEmpty) {
         continuations.add(_continuation);
-        stack.add(CallAction<C>(parser, context, (result) {
+        stack.add(CallAction<C>(parser, context, (Context<C> result) {
           if (results.add(result)) {
             for (Continuation<C> continuation in continuations) {
               stack.add(ContinueAction<C>(result, continuation));

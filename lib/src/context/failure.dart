@@ -13,9 +13,9 @@ class Failure extends Context<Never> {
   final String message;
   final bool artificial;
 
-  const Failure(this.message, [super.input = "", super.index = 0, super.indentation = const [0]]) //
+  const Failure(this.message, [super.input = "", super.index = 0, super.indentation = const <int>[0]]) //
       : artificial = false;
-  const Failure.artificial(this.message, [super.input = "", super.index = 0, super.indentation = const [0]])
+  const Failure.artificial(this.message, [super.input = "", super.index = 0, super.indentation = const <int>[0]])
       : artificial = true;
 
   @override
@@ -34,7 +34,7 @@ class Failure extends Context<Never> {
   Failure inherit<I>(Context<I> context) => Failure(message, context.input, context.index, context.indentation);
 
   @override
-  Failure pushIndent(int indent) => Failure(message, input, index, [indent, ...indentation]);
+  Failure pushIndent(int indent) => Failure(message, input, index, <int>[indent, ...indentation]);
 
   @override
   Failure popIndent() => Failure(message, input, index, indentation.sublist(1));
@@ -42,7 +42,7 @@ class Failure extends Context<Never> {
   @override
   String toString() => "Failure($location): $message";
 
-  String get padded => input.split("\n").map((c) => "$c ").join("\n");
+  String get padded => input.split("\n").map((String c) => "$c ").join("\n");
 
   static String _highlightIndent(String input) {
     int i = input.length - input.trimLeft().length;

@@ -10,8 +10,10 @@ import "package:parser_combinator/src/shared/typedef.dart";
 
 part "thunk_extension.dart";
 
-class ReferenceParser<R> extends Parser<R> with LazyLoad {
-  static final HashMap<Lazy<Parser<void>>, ReferenceParser<void>> _thunkMap = HashMap();
+typedef _ThunkMap = HashMap<Lazy<Parser<void>>, ReferenceParser<void>>;
+
+class ReferenceParser<R> extends Parser<R> with LazyLoad<R> {
+  static final _ThunkMap _thunkMap = _ThunkMap();
 
   @override
   final Lazy<Parser<R>> lazyParser;

@@ -12,7 +12,7 @@ class Empty extends Context<Never> {
   @override
   final Object? cst;
 
-  const Empty([this.cst, super.input = "", super.index = 0, super.indentation = const [0]]);
+  const Empty([this.cst, super.input = "", super.index = 0, super.indentation = const <int>[0]]);
 
   @override
   Never unwrap() => throw UnsupportedError("`Empty` cannot be unwrapped!");
@@ -30,7 +30,7 @@ class Empty extends Context<Never> {
   Empty inherit<I>(Context<I> context) => Empty(cst, context.input, context.index, context.indentation);
 
   @override
-  Empty pushIndent(int indent) => Empty(cst, input, index, [indent, ...indentation]);
+  Empty pushIndent(int indent) => Empty(cst, input, index, <int>[indent, ...indentation]);
 
   @override
   Empty popIndent() => Empty(cst, input, index, indentation.sublist(1));

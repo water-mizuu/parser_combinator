@@ -2,7 +2,7 @@ import "package:parser_combinator/parser_combinator.dart";
 
 Parser<R> _onEmpty<R>(Parser<R> parser, R value) {
   return parser.pipe(
-    (_, result) => switch (result) {
+    (_, Context<R> result) => switch (result) {
       Empty result => result.success(value),
       Context<R> result => result,
     },

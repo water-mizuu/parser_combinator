@@ -20,5 +20,5 @@ mixin ChildlessParser<R> on Parser<R> {
   }
 
   @override
-  List<Parser<void>> get children => [];
+  List<Parser<void>> get children => <Parser<void>>[];
 }

@@ -94,20 +94,18 @@ class MultiMap<K, V> with MapMixin<List<K>, V> {
       return null;
     }
 
-    if (key is List) {
-      if (key.every((e) => e is K)) {
-        return key.cast<K>().toList();
-      }
+    if (key is List && key.every((Object? e) => e is K)) {
+      return key.cast<K>().toList();
     }
   }
 
   V? _get(List<K> keys) => _derived(keys)[(null, _safeGuard)] as V?;
   V _set(List<K> keys, V value) => _derived(keys)[(null, _safeGuard)] = value;
-  V? _remove(List<K> keys) => _derived(keys).remove([(null, _safeGuard)]) as V?;
+  V? _remove(List<K> keys) => _derived(keys).remove(<(void, Symbol)>[(null, _safeGuard)]) as V?;
 
   Iterable<List<K>> _keys(HashMap<Key<K>, Object?> map) sync* {
     if (map.containsKey((null, _safeGuard))) {
-      yield [];
+      yield <K>[];
     }
 
     for (var (K keys, _) in map.keys.whereType<(K, void)>()) {
@@ -116,9 +114,9 @@ class MultiMap<K, V> with MapMixin<List<K>, V> {
 
       switch (map[(keys, null)]) {
         case HashMap<Key<K>, Object?> derivative:
-          yield* _keys(derivative).map((rest) => [keys, ...rest]);
+          yield* _keys(derivative).map((List<K> rest) => <K>[keys, ...rest]);
         case null:
-          yield [keys];
+          yield <K>[keys];
       }
     }
   }
@@ -127,7 +125,7 @@ class MultiMap<K, V> with MapMixin<List<K>, V> {
 class Trie extends MultiMap<String, bool> {
   Trie();
   const Trie.complete(super.innerMap, super.requiredKeyCount) : super.complete();
-  factory Trie.from(Iterable<String> strings) => strings.fold(Trie(), (t, s) => t..add(s));
+  factory Trie.from(Iterable<String> strings) => strings.fold(Trie(), (Trie t, String s) => t..add(s));
 
   bool add(String value) {
     List<String> key = value.split("");
@@ -154,5 +152,5 @@ class Trie extends MultiMap<String, bool> {
 
   Trie? deriveAll(String value) => value //
       .split("")
-      .fold(this, (trie, char) => trie?.derive(char));
+      .fold(this, (Trie? trie, String char) => trie?.derive(char));
 }

@@ -13,7 +13,7 @@ abstract class PegHandler {
     if (longestFailure == null) {
       return ctx;
     }
-    const memoError = "seed";
+    const String memoError = "seed";
 
     if (ctx.message == memoError) {
       return longestFailure;

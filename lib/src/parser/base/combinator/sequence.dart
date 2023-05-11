@@ -13,7 +13,7 @@ class SequenceParser<R> extends Parser<List<R>> with SequentialParser<List<R>, R
   final List<Parser<R>> children;
 
   SequenceParser(this.children);
-  SequenceParser._empty() : children = [];
+  SequenceParser._empty() : children = <Parser<R>>[];
 
   @override
   void gllParseOn(Context<void> context, Trampoline trampoline, Continuation<List<R>> continuation) {
@@ -22,32 +22,42 @@ class SequenceParser<R> extends Parser<List<R>> with SequentialParser<List<R>, R
         return continuation(context.success(accumulativeResults, accumulativeCst));
       }
 
-      trampoline.add(children[index], context, (result) {
+      trampoline.add(children[index], context, (Context<R> result) {
         switch (result) {
           case Failure _:
             return continuation(result);
           case Success(:R value, :Object? cst):
-            return _continue(result, index + 1, [...accumulativeResults, value], [...accumulativeCst, cst]);
+            return _continue(
+              result,
+              index + 1,
+              <R>[...accumulativeResults, value],
+              <Object?>[...accumulativeCst, cst],
+            );
           case Empty(:Object? cst):
-            return _continue(result, index + 1, accumulativeResults, [...accumulativeCst, cst]);
+            return _continue(
+              result,
+              index + 1,
+              accumulativeResults,
+              <Object?>[...accumulativeCst, cst],
+            );
         }
       });
     }
 
-    _continue(context, 0, [], []);
+    _continue(context, 0, <R>[], <Object?>[]);
   }
 
   @override
   Context<List<R>> pegParseOn(Context<void> context, PegHandler handler) {
-    List<R> results = [];
-    List<Object?> cst = [];
+    List<R> results = <R>[];
+    List<Object?> cst = <Object?>[];
 
     Context<void> ctx = context;
     for (int i = 0; i < children.length; ++i) {
       Context<R> inner = handler.parse(children[i], ctx);
-      if (inner is Failure) {
+      if (inner case Failure _) {
         return inner;
-      } else if (inner is Success) {
+      } else if (inner case Success _) {
         results.add(inner.value);
       }
       cst.add(inner.cst);
@@ -69,7 +79,7 @@ extension SequenceParserExtension<R> on Parser<R> {
   Parser<List<Object?>> operator &(Parser<Object?> other) {
     Parser<R> self = this;
 
-    return SequenceParser<Object?>([self, other]);
+    return SequenceParser<Object?>(<Parser<Object?>>[self, other]);
   }
 }
 
@@ -77,7 +87,7 @@ extension NonNullableSequenceParserExtension<R extends Object> on Parser<R> {
   Parser<List<Object>> operator +(Parser<Object> other) {
     Parser<R> self = this;
 
-    return SequenceParser<Object>([self, other]);
+    return SequenceParser<Object>(<Parser<Object>>[self, other]);
   }
 }
 
@@ -86,9 +96,9 @@ extension ExtendedSequenceParserExtension<R> on Parser<List<R>> {
     Parser<List<R>> self = this;
 
     if (self is SequenceParser<R>) {
-      return SequenceParser<Object?>([...self.children, other]);
+      return SequenceParser<Object?>(<Parser<Object?>>[...self.children, other]);
     } else {
-      return SequenceParser<Object?>([self, other]);
+      return SequenceParser<Object?>(<Parser<Object?>>[self, other]);
     }
   }
 }
@@ -98,13 +108,13 @@ extension NonNullableExtendedSequenceParserExtension<R extends Object> on Parser
     Parser<List<R>> self = this;
 
     if (self is SequenceParser<R>) {
-      return SequenceParser<Object>([...self.children, other]);
+      return SequenceParser<Object>(<Parser<Object>>[...self.children, other]);
     } else {
-      return SequenceParser<Object>([self, other]);
+      return SequenceParser<Object>(<Parser<Object>>[self, other]);
     }
   }
 }
 
 extension IterableSequenceParserExtension<R> on Iterable<Parser<R>> {
-  Parser<List<R>> sequence() => SequenceParser<R>([...this]);
+  Parser<List<R>> sequence() => SequenceParser<R>(<Parser<R>>[...this]);
 }

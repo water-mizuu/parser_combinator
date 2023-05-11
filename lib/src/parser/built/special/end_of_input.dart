@@ -2,7 +2,7 @@ import "package:parser_combinator/parser_combinator.dart";
 
 Parser<String> endOfInput() {
   return predicate(
-    (context) {
+    (Context<void> context) {
       if (context.index >= context.input.length) {
         return context.success("end-of-input");
       }
@@ -13,5 +13,5 @@ Parser<String> endOfInput() {
 }
 
 extension EndParserExtension<R> on Parser<R> {
-  Parser<R> end() => sequence([this, endOfInput()]).map(($) => $[0].cast());
+  Parser<R> end() => sequence(<Parser<Object?>>[this, endOfInput()]).map((List<Object?> $) => $[0].cast());
 }

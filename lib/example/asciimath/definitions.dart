@@ -20,7 +20,7 @@ class _AsciiMathConversion implements Comparable<_AsciiMathConversion> {
 }
 
 mixin _AsciiMathDefinitions {
-  List<_AsciiMathConversion> get greekLetters => const [
+  List<_AsciiMathConversion> get greekLetters => const <_AsciiMathConversion>[
         _AsciiMathConversion(asciimath: "alpha", tex: r"\alpha"),
         _AsciiMathConversion(asciimath: "beta", tex: r"\beta"),
         _AsciiMathConversion(asciimath: "gamma", tex: r"\gamma"),
@@ -59,7 +59,7 @@ mixin _AsciiMathDefinitions {
         _AsciiMathConversion(asciimath: "Omega", tex: r"\Omega"),
       ];
 
-  List<_AsciiMathConversion> get arithmeticSymbols => const [
+  List<_AsciiMathConversion> get arithmeticSymbols => const <_AsciiMathConversion>[
         _AsciiMathConversion(asciimath: "+", tex: "+"),
         _AsciiMathConversion(asciimath: "*", tex: "*"),
         _AsciiMathConversion(asciimath: "//", tex: "/"),
@@ -70,7 +70,7 @@ mixin _AsciiMathDefinitions {
         _AsciiMathConversion(asciimath: "°", tex: r"^\circ"),
       ];
 
-  List<_AsciiMathConversion> get relationSymbols => const [
+  List<_AsciiMathConversion> get relationSymbols => const <_AsciiMathConversion>[
         _AsciiMathConversion(asciimath: "&=", tex: "&="),
         _AsciiMathConversion(asciimath: "=", tex: "="),
         _AsciiMathConversion(asciimath: ":=", tex: ":="),
@@ -128,7 +128,7 @@ mixin _AsciiMathDefinitions {
         _AsciiMathConversion(asciimath: "|--", tex: r"\vdash"),
       ];
 
-  List<_AsciiMathConversion> get leftBracketSymbols => const [
+  List<_AsciiMathConversion> get leftBracketSymbols => const <_AsciiMathConversion>[
         _AsciiMathConversion(asciimath: "langle", tex: r"\langle"),
         _AsciiMathConversion(asciimath: "lbrace", tex: r"\lbrace"),
         _AsciiMathConversion(asciimath: "(:", tex: r"\langle"),
@@ -142,7 +142,7 @@ mixin _AsciiMathDefinitions {
         // AsciiMathConversion(asciimath: "|", tex: "|"),
       ];
 
-  List<_AsciiMathConversion> get rightBracketSymbols => const [
+  List<_AsciiMathConversion> get rightBracketSymbols => const <_AsciiMathConversion>[
         _AsciiMathConversion(asciimath: "rangle", tex: r"\rangle"),
         _AsciiMathConversion(asciimath: "rbrace", tex: r"\rbrace"),
         _AsciiMathConversion(asciimath: ":)", tex: r"\rangle"),
@@ -155,7 +155,7 @@ mixin _AsciiMathDefinitions {
         // AsciiMathConversion(asciimath: "|", tex: "|"),
       ];
 
-  List<_AsciiMathConversion> get constantSymbols => const [
+  List<_AsciiMathConversion> get constantSymbols => const <_AsciiMathConversion>[
         _AsciiMathConversion(asciimath: "sin", tex: r"\sin"),
         _AsciiMathConversion(asciimath: "cos", tex: r"\cos"),
         _AsciiMathConversion(asciimath: "tan", tex: r"\tan"),
@@ -367,7 +367,7 @@ mixin _AsciiMathDefinitions {
         _AsciiMathConversion(asciimath: "sum", tex: r"\sum\limits"),
       ];
 
-  List<_AsciiMathConversion> get unarySymbols => const [
+  List<_AsciiMathConversion> get unarySymbols => const <_AsciiMathConversion>[
         _AsciiMathConversion(asciimath: "text", tex: r"\text"),
         _AsciiMathConversion(asciimath: "ce", tex: r"\ce"),
         _AsciiMathConversion(asciimath: "sqrt", tex: r"\sqrt"),
@@ -411,7 +411,7 @@ mixin _AsciiMathDefinitions {
         _AsciiMathConversion(asciimath: "mathfrak", tex: r"\mathfrak"),
       ];
 
-  List<_AsciiMathConversion> get binarySymbols => const [
+  List<_AsciiMathConversion> get binarySymbols => const <_AsciiMathConversion>[
         _AsciiMathConversion(asciimath: "root", tex: r"\sqrt", firstIsOption: true),
         _AsciiMathConversion(asciimath: "frac", tex: r"\frac"),
         _AsciiMathConversion(asciimath: "stackrel", tex: r"\stackrel"),
@@ -432,8 +432,9 @@ mixin _AsciiMathDefinitions {
       unarySymbols +
       binarySymbols;
 
-  Map<String, _AsciiMathConversion> get symbolMap => {
-        for (_AsciiMathConversion s in fullSymbol) ...{
+  static Map<String, _AsciiMathConversion>? _symbolMap;
+  Map<String, _AsciiMathConversion> get symbolMap => _symbolMap ??= <String, _AsciiMathConversion>{
+        for (_AsciiMathConversion s in fullSymbol) ...<String, _AsciiMathConversion>{
           s.asciimath: s,
           s.tex ?? "": s,
         }

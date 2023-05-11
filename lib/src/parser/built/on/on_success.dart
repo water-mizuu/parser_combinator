@@ -4,7 +4,7 @@ import "package:parser_combinator/parser_combinator.dart";
 
 Parser<O> _onSuccess<R, O>(Parser<R> parser, O value) {
   return parser.pipe(
-    (_, result) => switch (result) {
+    (_, Context<R> result) => switch (result) {
       Context<Never> result => result as Context<O>,
       Context<R> context => context.success(value),
     },

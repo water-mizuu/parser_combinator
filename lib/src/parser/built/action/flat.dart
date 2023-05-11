@@ -3,7 +3,7 @@ import "package:parser_combinator/src/parser/base/action/piped.dart";
 import "package:parser_combinator/src/parser/base/core/abstract/parser.dart";
 
 Parser<String> _flat<C>(Parser<C> parser) {
-  return parser.pipe(toString: () => "FlattenedParser", (pre, context) {
+  return parser.pipe(toString: () => "FlattenedParser", (Context<void> pre, Context<C> context) {
     if (context is Success<C>) {
       int start = pre.index;
       int end = context.index;

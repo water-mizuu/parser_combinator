@@ -2,7 +2,7 @@ import "package:parser_combinator/parser_combinator.dart";
 
 Parser<int> dedent() {
   return predicate(
-    (context) {
+    (Context<void> context) {
       if (context.index >= context.input.length) {
         if (context.indentation.length > 1) {
           return context.success(0).popIndent();

@@ -3,6 +3,8 @@ part of "thunk.dart";
 extension ReferenceExtension0<R> on Parser<R> Function() {
   ReferenceParser<R> reference() => ReferenceParser<R>(this);
   ReferenceParser<R> $() => reference();
+  ReferenceParser<R> get ref => reference();
+  ReferenceParser<R> get r$ => reference();
 }
 
 extension ReferenceExtension1<R, A1> on Parser<R> Function(A1) {

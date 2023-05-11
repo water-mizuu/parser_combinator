@@ -2,10 +2,10 @@ import "package:parser_combinator/src/context/context.dart";
 import "package:parser_combinator/src/parser/base/core/abstract/parser.dart";
 import "package:parser_combinator/src/parser/base/special/context_predicate.dart";
 
-final Map<(int, int), Parser<String>> _saved = {};
+final Map<(int, int), Parser<String>> _saved = <(int, int), Parser<String>>{};
 Parser<String> _codeRange(int low, int high) => predicate(
-      (context) {
-        var Context(:String input, :int index) = context;
+      (Context<void> context) {
+        var Context<void>(:String input, :int index) = context;
         if (index >= input.length) {
           return context.failure("Unexpected end of input.");
         }

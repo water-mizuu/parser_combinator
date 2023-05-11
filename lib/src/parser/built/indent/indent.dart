@@ -2,7 +2,7 @@ import "package:parser_combinator/parser_combinator.dart";
 
 Parser<int> indent() {
   return predicate(
-    (context) {
+    (Context<void> context) {
       int previous = context.indentation.first;
       int indent = context.indent;
 

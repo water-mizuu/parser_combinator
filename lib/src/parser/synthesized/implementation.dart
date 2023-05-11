@@ -65,19 +65,19 @@ Parser<num> __whole() => "[0-9]+".r().map(num.parse);
 Parser<num> __fraction() => r"\.[0-9]+".r().map(num.parse).onFailure(0);
 Parser<num> __eMark() => "[Ee]".r().onSuccess(1);
 Parser<num> __eSign() => "[+-]".r().onSuccess(1).onFailure(-1);
-Parser<num> __power() => [__eMark.$(), __eSign.$(), __whole.$()]
+Parser<num> __power() => (__eMark.$(), __eSign.$(), __whole.$())
     .sequence() //
-    .map((v) => pow(10, v[0] * v[1] * v[2]))
+    .map(((num, num, num) v) => pow(10, v.$1 * v.$2 * v.$3))
     .onFailure(1);
-Parser<num> __base() => [__whole.$(), __fraction.$()]
+Parser<num> __base() => (__whole.$(), __fraction.$())
     .sequence() //
-    .map((v) => v[0] + v[1]);
-Parser<num> _completeNumber() => [__base.$(), __power.$()]
+    .map(((num, num) v) => v.$1 + v.$2);
+Parser<num> _completeNumber() => (__base.$(), __power.$())
     .sequence() //
-    .map((v) => v[0] * v[1]);
-Parser<num> _jsonNumber() => [__sign.$(), __base.$(), __power.$()]
+    .map(((num, num) v) => v.$1 * v.$2);
+Parser<num> _jsonNumber() => (__sign.$(), __base.$(), __power.$())
     .sequence() //
-    .map((v) => v[0] * v[1] * v[2]);
+    .map(((num, num, num) v) => v.$1 * v.$2 * v.$3);
 
 Parser<Object> __controlCharBody() =>
     string(r"\") |
@@ -94,7 +94,7 @@ Parser<Object> __stringAvoid() => __controlChar.$() | string('"');
 Parser<Object> __stringChar() => __controlChar.$() | any().prefix(__stringAvoid.$().not());
 Parser<List<Object>> _jsonString() => string('"') + __stringChar.$().star() + string('"');
 
-Parser<int> _newline() => regex(r"(?:\n(?:\r)?)+").map((v) => v.length);
+Parser<int> _newline() => regex(r"(?:\n(?:\r)?)+").map((String v) => v.length);
 
 Pattern layout = RegExp(r"(?:[ \t\r])*");
 Pattern newlineLayout = RegExp(r"(?:\s)*");

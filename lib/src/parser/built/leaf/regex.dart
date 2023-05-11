@@ -23,12 +23,12 @@ Parser<String> regex(
           ));
 
   return _savedRegExpParser[pattern] ??= predicate(
-    (context) => switch (context) {
-      Context(:String input, :int index) => switch (regex.matchAsPrefix(input, index)) {
-        Match match => context.success(match.group(0)!).replaceIndex(match.end),
-        // ignore: unnecessary_cast
-        null => context.failure("Expected '/$pattern/'") as Context<String>,
-      }
+    (Context<void> context) => switch (context) {
+      Context<void>(:String input, :int index) => switch (regex.matchAsPrefix(input, index)) {
+          Match match => context.success(match.group(0)!).replaceIndex(match.end),
+          // ignore: unnecessary_cast
+          null => context.failure("Expected '/$pattern/'") as Context<String>,
+        }
     },
     toString: () => "/$pattern/",
     nullable: () => regex.hasMatch(""),

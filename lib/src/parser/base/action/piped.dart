@@ -14,15 +14,15 @@ class PipedParser<R, C> extends Parser<R> with WrappingParser<R, C> {
   final PipedParserFunction<R, C> function;
 
   PipedParser(Parser<C> child, this.function, {String Function()? toString})
-      : children = [child],
+      : children = <Parser<C>>[child],
         _toString = toString;
   PipedParser._empty(this.function, {required String Function()? toString})
-      : children = [],
+      : children = <Parser<C>>[],
         _toString = toString;
 
   @override
   void gllParseOn(Context<void> context, Trampoline trampoline, Continuation<R> continuation) {
-    return trampoline.add(child, context, (result) {
+    return trampoline.add(child, context, (Context<C> result) {
       return continuation(function(context, result));
     });
   }
@@ -53,12 +53,15 @@ extension PipedParserExtension<C> on Parser<C> {
   ///
   /// Only pipes the parser when the result is a [Success].
   ///
-  Parser<R> pipeSuccess<R>(PipedParserFunction<R, C> function, {String Function()? toString}) =>
-      PipedParser<R, C>(this, (from, to) {
-        if (to case Success<C>()) {
-          return function(from, to);
-        } else {
-          return to as Context<Never>;
-        }
-      }, toString: toString);
+  Parser<R> pipeSuccess<R>(
+    PipedParserFunction<R, C> function, {
+    String Function()? toString,
+  }) =>
+      PipedParser<R, C>(
+          this,
+          (Context<void> from, Context<C> to) => switch (to) {
+                Context<Never>() => to,
+                _ => function(from, to),
+              },
+          toString: toString);
 }

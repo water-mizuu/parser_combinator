@@ -40,10 +40,10 @@ Graph _generateGraph(Parser<void> parser, String input) {
   Object cst = _box(built.peg(input).cst);
 
   int i = 0;
-  DefaultMap<Object?, int> names = DefaultMap<Object?, int>((_, __) => ++i);
-  Set<int> addedVertices = {};
-  Set<Vertex> vertices = {};
-  Set<Edge> edges = {};
+  DefaultMap<Object?, int> names = DefaultMap<Object?, int>((_) => ++i);
+  Set<int> addedVertices = <int>{};
+  Set<Vertex> vertices = <Vertex>{};
+  Set<Edge> edges = <Edge>{};
   for (Object obj in _iterate(cst)) {
     int id = names[obj];
 

@@ -4,16 +4,15 @@ import "package:parser_combinator/src/parser.dart";
 import "package:parser_combinator/src/peg/handler/abstract/handler.dart";
 import "package:parser_combinator/src/peg/handler/packrat/linear/typedef.dart";
 import "package:parser_combinator/src/peg/handler/packrat/primitive/handler.dart";
-import "package:parser_combinator/src/shared/default_map.dart";
 
 class LinearHandler extends PegHandler {
-  final ParsingTable _table = ParsingTable((_, __) => DefaultMap((_, __) => {}));
+  final ParsingTable _table = createParsingTable();
 
   LinearHandler();
   factory LinearHandler.tokenize(Parser<void> root, String input, [Pattern? layout]) {
     PrimitiveHandler primitive = PrimitiveHandler.tokenize(root, input, layout);
     LinearHandler self = LinearHandler();
-    for (Parser<void> parser in root.traverse().where((p) => p.children.isEmpty && p.isNotNullable)) {
+    for (Parser<void> parser in root.traverse().where((Parser<void> p) => p.children.isEmpty && p.isNotNullable)) {
       for (int index in primitive.table[parser].keys) {
         for (int indent in primitive.table[parser][index].keys) {
           self._table[parser][index][indent] = primitive.table[parser][index][indent]!;
@@ -39,7 +38,8 @@ class LinearHandler extends PegHandler {
 
       while (true) {
         switch (parser.pegParseOn(context, this)) {
-          case Failure inner when inner.index <= ctx.index:
+          case Failure _:
+          case Context<R> inner when inner.index <= ctx.index:
             return ctx;
           case Context<R> inner:
             ctx = row[index][indent] = inner;

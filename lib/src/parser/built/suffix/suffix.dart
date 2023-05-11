@@ -1,7 +1,7 @@
 import "package:parser_combinator/parser_combinator.dart";
 
 Parser<R> _suffix<R>(Parser<R> parser, Parser<void> suffix) {
-  return sequence([parser, suffix]).map((r) => r[0] as R);
+  return sequence(<Parser<void>>[parser, suffix]).map((List<void> r) => r[0] as R);
 }
 
 extension PostfixParserExtension<R> on Parser<R> {

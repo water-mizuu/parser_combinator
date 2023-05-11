@@ -6,7 +6,7 @@ extension ParserReplaceExtension<R> on Parser<R> {
   /// match [target] with [replacement].
   ///
   Parser<R> replace<O extends Object?>(Parser<O> target, Parser<O> replacement) =>
-      selfTransform(<R>(t) => t == target ? replacement as Parser<R> : t);
+      selfTransform(<R>(Parser<R> t) => t == target ? replacement as Parser<R> : t);
 
   ///
   /// First creates a copy of all the parsers reachable from the root,

@@ -30,7 +30,7 @@ abstract class Parser<R extends Object?> {
   static Parser<String> end() => core.endOfInput();
   static Parser<String> start() => core.startOfInput();
   static Parser<String> empty() => core.epsilon();
-  static Parser<int> newline() => core.string("\n").plus().map((v) => v.length);
+  static Parser<int> newline() => core.string("\n").plus().map((List<String> v) => v.length);
   static Parser<int> indent() => core.indent();
   static Parser<int> samedent() => core.samedent();
   static Parser<int> dedent() => core.dedent();
@@ -46,8 +46,8 @@ abstract class Parser<R extends Object?> {
 }
 
 extension ExtendedParserMethods<P extends Parser<Object?>> on P {
-  static final Expando<bool> _isTerminals = Expando();
-  static final Expando<bool> _isNullables = Expando();
+  static final Expando<bool> _isTerminals = Expando<bool>();
+  static final Expando<bool> _isNullables = Expando<bool>();
 
   bool get _isTerminal => _isTerminals[this] ??= children.isEmpty;
   bool get _isNullable => _isNullables[this] ??= selfIsNullable();

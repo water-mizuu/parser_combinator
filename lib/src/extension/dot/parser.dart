@@ -6,11 +6,11 @@ extension ParserGraphDotExtension<R> on Parser<R> {
     Parser<R> built = build();
 
     int i = 0;
-    Map<Parser<void>, int> ids = {};
+    Map<Parser<void>, int> ids = <Parser<void>, int>{};
     int grabId(Parser<void> parser) => ids[parser] ??= ++i;
 
-    Set<Edge> edges = {};
-    Set<Vertex> vertices = {};
+    Set<Edge> edges = <Edge>{};
+    Set<Vertex> vertices = <Vertex>{};
 
     for (Parser<void> parser in built.traverse()) {
       int parserId = grabId(parser);
@@ -26,19 +26,19 @@ extension ParserGraphDotExtension<R> on Parser<R> {
     return (edges: edges, vertices: vertices);
   }
 
-  (Graph, Set<int>) _generateRuleGraph({Map<int, String> ruleNames = const {}}) {
+  (Graph, Set<int>) _generateRuleGraph({Map<int, String> ruleNames = const <int, String>{}}) {
     Parser<void> built = build();
     List<Parser<void>> rules = built.rules().toList();
 
     int i = 0;
-    Map<Parser<void>, int> ids = {};
+    Map<Parser<void>, int> ids = <Parser<void>, int>{};
 
     int grabId(Parser<void> parser) => ids[parser] ??= ++i;
     String ruleName(int id) => ruleNames[id] ?? "Rule $id";
 
-    Set<int> ruleNodeIds = {};
-    Set<Edge> edges = {};
-    Set<Vertex> vertices = {
+    Set<int> ruleNodeIds = <int>{};
+    Set<Edge> edges = <Edge>{};
+    Set<Vertex> vertices = <Vertex>{
       /// Register the ids of each rule.
       for (Parser<void> rule in rules) (id: grabId(rule), label: rule.toString()),
     };
@@ -107,15 +107,15 @@ extension ParserGraphDotExtension<R> on Parser<R> {
   /// separates the memoized parsers into different "rules",
   /// showing the connection between them.
   ///
-  String generateRuleDotGraph({Map<int, String> ruleNames = const {}}) {
+  String generateRuleDotGraph({Map<int, String> ruleNames = const <int, String>{}}) {
     var (Graph graph, Set<int> ids) = _generateRuleGraph(ruleNames: ruleNames);
 
-    return graph.generateDotFile({
-      for (int id in ids) id: {"shape": "box"}
+    return graph.generateDotFile(<int, Map<String, String>>{
+      for (int id in ids) id: <String, String>{"shape": "box"}
     });
   }
 
-  Graph generateRuleGraph({Map<int, String> ruleNames = const {}}) {
+  Graph generateRuleGraph({Map<int, String> ruleNames = const <int, String>{}}) {
     var (Graph graph, _) = _generateRuleGraph(ruleNames: ruleNames);
 
     return graph;

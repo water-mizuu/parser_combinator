@@ -11,7 +11,6 @@ import "package:parser_combinator/src/peg/handler/packrat/quadratic/classes/head
 import "package:parser_combinator/src/peg/handler/packrat/quadratic/classes/left_recursion.dart";
 import "package:parser_combinator/src/peg/handler/packrat/quadratic/classes/memoization_entry.dart";
 import "package:parser_combinator/src/peg/handler/packrat/quadratic/typedef.dart";
-import "package:parser_combinator/src/shared/default_map.dart";
 
 extension<R> on Context<R> {
   MemoizationEntry entry() => MemoizationEntry(this);
@@ -28,7 +27,7 @@ class QuadraticHandler extends PegHandler {
   factory QuadraticHandler.tokenize(Parser<void> root, String input, [Pattern? layout]) {
     PrimitiveHandler primitive = PrimitiveHandler.tokenize(root, input, layout);
     QuadraticHandler self = QuadraticHandler();
-    for (Parser<void> parser in root.traverse().where((p) => p.children.isEmpty && p.isNotNullable)) {
+    for (Parser<void> parser in root.traverse().where((Parser<void> p) => p.children.isEmpty && p.isNotNullable)) {
       for (int index in primitive.table[parser].keys) {
         for (int indent in primitive.table[parser][index].keys) {
           self._table[parser][index][indent] = primitive.table[parser][index][indent]!.entry();
@@ -42,7 +41,7 @@ class QuadraticHandler extends PegHandler {
   @pragma("vm:prefer-inline")
   @override
   Context<R> parse<R>(Parser<R> parser, Context<void> context) {
-    return parser.captureGeneric(<G>(parser) {
+    return parser.captureGeneric(<G>(Parser<G> parser) {
       if (context is Failure) {
         return context;
       } else if (parser.pegMemoize) {
@@ -53,9 +52,9 @@ class QuadraticHandler extends PegHandler {
     });
   }
 
-  final ParsingTable _table = ParsingTable((_, __) => DefaultMap((_, __) => {}));
-  final Map<int, Head<void>> _heads = {};
-  final Queue<LeftRecursion<void>> _lrStack = Queue();
+  final ParsingTable _table = createParsingTable();
+  final Map<int, Head<void>> _heads = <int, Head<void>>{};
+  final Queue<LeftRecursion<void>> _lrStack = Queue<LeftRecursion<void>>();
 
   MemoizationEntry? _recall<R>(Parser<R> parser, int index, Context<void> context) {
     MemoizationEntry? entry = _table[parser][context.indentation.first][index];
@@ -68,7 +67,7 @@ class QuadraticHandler extends PegHandler {
 
     // If the current parser is not a part of the head and is not evaluated yet,
     // Add a failure to it.
-    if (entry == null || !{...head.involvedSet, head.parser}.contains(parser)) {
+    if (entry == null || head.parser == parser || !head.involvedSet.contains(parser)) {
       return context.failure("seed").entry();
     }
 
@@ -143,29 +142,29 @@ class QuadraticHandler extends PegHandler {
         return ans;
       }
     } else {
-      Object result = entry.value;
+      switch (entry.value) {
+        case LeftRecursion<R> result:
+          Head<void> head = result.head ??= (
+            parser: parser,
+            evaluationSet: <Parser<void>>{},
+            involvedSet: <Parser<void>>{},
+          );
 
-      if (result is LeftRecursion<R>) {
-        Head<void> head = result.head ??= Head<R>(
-          parser: parser,
-          evaluationSet: {},
-          involvedSet: {},
-        );
+          for (LeftRecursion<void> lr in _lrStack) {
+            if (lr.head == head) {
+              break;
+            }
 
-        for (LeftRecursion<void> lr in _lrStack) {
-          if (lr.head == head) {
-            break;
+            head.involvedSet.add(lr.parser);
+            lr.head = head;
           }
 
-          head.involvedSet.add(lr.parser);
-          lr.head = head;
-        }
-
-        return result.seed;
-      } else if (result is Context<R>) {
-        return result;
+          return result.seed;
+        case Context<R> result:
+          return result;
+        default:
+          throw UnsupportedError("no u");
       }
-      throw UnsupportedError("no u");
     }
   }
 }

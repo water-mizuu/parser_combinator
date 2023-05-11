@@ -2,13 +2,13 @@ import "dart:convert";
 
 import "package:parser_combinator/parser_combinator.dart";
 
-Map<String, Parser<String>> _savedString = {};
-Expando<Parser<String>> _savedRegExp = Expando();
+Map<String, Parser<String>> _savedString = <String, Parser<String>>{};
+Expando<Parser<String>> _savedRegExp = Expando<Parser<String>>();
 
 Parser<String> _pattern(Pattern pattern) => predicate(
-      (context) =>
+      (Context<void> context) =>
         switch (context) {
-          Context(:String input, :int index) =>
+          Context<void>(:String input, :int index) =>
             switch (pattern.matchAsPrefix(input, index)) {
               Match(:int start, :int end) => context.success(input.substring(start, end)).replaceIndex(end),
               // ignore: unnecessary_cast

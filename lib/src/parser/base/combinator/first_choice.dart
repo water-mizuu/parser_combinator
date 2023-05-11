@@ -14,8 +14,8 @@ class FirstChoiceParser<R> extends ChoiceParser<R> {
         return continuation(context.failure("First Choice Failure"));
       }
 
-      trampoline.add(children[iteration], context, (result) {
-        if (result case Failure() when iteration < children.length - 1) {
+      trampoline.add(children[iteration], context, (Context<R> result) {
+        if (result case Failure _ when iteration < children.length - 1) {
           _add(iteration + 1);
         } else {
           return continuation(result);
@@ -28,5 +28,5 @@ class FirstChoiceParser<R> extends ChoiceParser<R> {
 }
 
 extension ListFirstChoiceParserExtension<R> on Iterable<Parser<R>> {
-  Parser<R> firstChoice() => FirstChoiceParser(toList());
+  Parser<R> firstChoice() => FirstChoiceParser<R>(toList());
 }
