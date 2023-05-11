@@ -12,7 +12,7 @@ class ChoiceParser<R> extends Parser<R> with CombinatorParser<R> {
   @override
   final List<Parser<R>> children;
 
-  ChoiceParser(this.children) : assert(children.isEmpty, "Combinators should not be empty!");
+  ChoiceParser(this.children);
   ChoiceParser._empty() : children = <Parser<R>>[];
 
   @override
