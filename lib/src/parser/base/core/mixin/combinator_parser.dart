@@ -1,7 +1,7 @@
 import "package:parser_combinator/src/parser/base/core/abstract/parser.dart";
 import "package:parser_combinator/src/shared/typedef.dart";
 
-mixin CombinatorParser<R> on Parser<R> {
+base mixin CombinatorParser<R> on Parser<R> {
   CombinatorParser<R> generateEmpty();
 
   @override

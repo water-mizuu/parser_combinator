@@ -5,7 +5,7 @@ import "package:parser_combinator/src/parser/base/core/abstract/parser.dart";
 import "package:parser_combinator/src/parser/base/core/mixin/wrapping_parser.dart";
 import "package:parser_combinator/src/peg/handler/abstract/handler.dart";
 
-class CycleRangeParser<R> extends Parser<List<R>> with WrappingParser<List<R>, R> {
+base class CycleRangeParser<R> extends Parser<List<R>> with WrappingParser<List<R>, R> {
   @override
   final List<Parser<R>> children;
   final num min;

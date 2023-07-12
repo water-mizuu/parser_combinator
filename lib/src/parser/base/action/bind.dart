@@ -10,7 +10,7 @@ import "package:parser_combinator/src/shared/typedef.dart";
 /// Allows returning a [Parser] depending on the result
 /// of the [Context] after parsing with [child].
 ///
-class BoundParser<R, C> extends Parser<R> with WrappingParser<R, C> {
+base class BoundParser<R, C> extends Parser<R> with WrappingParser<R, C> {
   final String Function()? _toString;
 
   ///

@@ -56,13 +56,13 @@ Parser<num> pnParser() =>
           ("%", num l, num r) => l % r,
           ("^" || "**", num l, num r) => pow(l, r),
           (String o, _, _) => throw Exception("Unknown operator '$o'"),
-        }) / //
+        }) | //
     (unaryOperators, pnParser.$()).sequence().map(((String, num) $) => //
         switch ($) {
           ("sqrt", num v) => sqrt(v),
           ("-", num v) => -v,
           ("!", num v) => piFunction(v),
           (String o, _) => throw Exception("Unknown operator '$o'"),
-        }) / //
-    pnParser.$().between("(".tok(), ")".tok()) /
+        }) | //
+    pnParser.$().between("(".tok(), ")".tok()) |
     regex(r"\d+").trim().map(num.parse);

@@ -5,7 +5,7 @@ import "package:parser_combinator/src/parser/base/core/abstract/parser.dart";
 import "package:parser_combinator/src/parser/base/core/mixin/wrapping_parser.dart";
 import "package:parser_combinator/src/peg/handler/abstract/handler.dart";
 
-class ExceptParser<R> extends Parser<R> with WrappingParser<R, R> {
+base class ExceptParser<R> extends Parser<R> with WrappingParser<R, R> {
   @override
   final List<Parser<void>> children;
   Parser<void> get avoid => children[0];

@@ -1,7 +1,6 @@
 import "package:parser_combinator/parser_combinator.dart";
-import "package:parser_combinator/parser_combinator.dart" as core;
 
-abstract class Parser<R extends Object?> {
+abstract base class Parser<R extends Object?> {
   bool pegMemoize = false;
 
   Context<R> pegParseOn(Context<void> context, PegHandler handler);
@@ -26,17 +25,6 @@ abstract class Parser<R extends Object?> {
 
   @override
   String toString() => runtimeType.toString();
-
-  static Parser<String> end() => core.endOfInput();
-  static Parser<String> start() => core.startOfInput();
-  static Parser<String> empty() => core.epsilon();
-  static Parser<int> newline() => core.string("\n").plus().map((List<String> v) => v.length);
-  static Parser<int> indent() => core.indent();
-  static Parser<int> samedent() => core.samedent();
-  static Parser<int> dedent() => core.dedent();
-
-  static Pattern layout = RegExp(r"[ \t]*");
-  static Parser<String> token(String token) => string(token).trim(layout, layout);
 
   static bool isTerminal(Parser<void> parser) => parser.isTerminal;
   static bool isNotTerminal(Parser<void> parser) => parser.isNotTerminal;

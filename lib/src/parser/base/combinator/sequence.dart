@@ -8,7 +8,7 @@ import "package:parser_combinator/src/peg/handler/abstract/handler.dart";
 ///
 /// [Parser] that describes sequencing.
 ///
-class SequenceParser<R> extends Parser<List<R>> with SequentialParser<List<R>, R> {
+base class SequenceParser<R> extends Parser<List<R>> with SequentialParser<List<R>, R> {
   @override
   final List<Parser<R>> children;
 

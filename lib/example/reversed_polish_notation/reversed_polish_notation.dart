@@ -1,5 +1,6 @@
 import "dart:math";
 
+import "package:parser_combinator/example/math/math.dart";
 import "package:parser_combinator/parser_combinator.dart";
 
 const int N = 10000;
@@ -12,8 +13,8 @@ num piFunction(num x) {
   return double.parse(product.toStringAsFixed(3));
 }
 
-final Parser<String> binaryOperators = trie(<String>["^", "**", "*", "/", "%", "~/", "-", "+"]).trim(layout, layout);
-final Parser<String> unaryOperators = trie(<String>["!", "-", "sqrt"]).trim(layout, layout);
+final Parser<String> binaryOperators = <String>["^", "**", "*", "/", "%", "~/", "-", "+"].trie().trim(layout, layout);
+final Parser<String> unaryOperators = <String>["!", "-", "sqrt"].trie().trim(layout, layout);
 
 /// A parser that purposely uses ambiguity. <br>
 /// This only properly works with gll parsing.
@@ -46,23 +47,29 @@ final Parser<String> unaryOperators = trie(<String>["!", "-", "sqrt"]).trim(layo
 /// atom = /\d+/
 /// ```
 Parser<num> rpnParser() =>
-    (rpnParser.$(), rpnParser.$(), binaryOperators).sequence().map(((num, num, String) $) => //
-        switch ($) {
-          (num l, num r, "+") => l + r,
-          (num l, num r, "-") => l - r,
-          (num l, num r, "*") => l * r,
-          (num l, num r, "/") => l / r,
-          (num l, num r, "~/") => l ~/ r,
-          (num l, num r, "%") => l % r,
-          (num l, num r, "^" || "**") => pow(l, r),
-          (_, _, String o) => throw Exception("Unknown operator '$o'"),
-        }) / //
-    (rpnParser.$(), unaryOperators).sequence().map(((num, String) $) => //
-        switch ($) {
-          (num v, "sqrt") => sqrt(v),
-          (num v, "-") => -v,
-          (num v, "!") => piFunction(v),
-          (_, String o) => throw Exception("Unknown operator '$o'"),
-        }) / //
-    rpnParser.$().between("(".tok(), ")".tok()) /
-    regex(r"\d+").trim().map(num.parse);
+    binaryOperation ^ rpnParser.$() & rpnParser.$() & binaryOperators | //
+    unaryOperation ^ rpnParser.$() & unaryOperators | //
+    surround ^ "(".tok() & rpnParser.$() & ")".tok() |
+    num.parse ^ regex(r"\d+").trim();
+
+num binaryOperation(List<Object?> $) => //
+    switch ($) {
+      [num l, num r, "+"] => l + r,
+      [num l, num r, "-"] => l - r,
+      [num l, num r, "*"] => l * r,
+      [num l, num r, "/"] => l / r,
+      [num l, num r, "~/"] => l ~/ r,
+      [num l, num r, "%"] => l % r,
+      [num l, num r, "^" || "**"] => pow(l, r),
+      [_, _, String o] => throw Exception("Unknown operator '$o'"),
+      _ => throw Exception("Unknown value ${$}"),
+    };
+num unaryOperation(List<Object?> $) => //
+    switch ($) {
+      [num v, "sqrt"] => sqrt(v),
+      [num v, "-"] => -v,
+      [num v, "!"] => piFunction(v),
+      [_, String o] => throw Exception("Unknown operator '$o'"),
+      _ => throw Exception("Unknown value ${$}"),
+    };
+num surround(List<Object?> v) => v[1]! as num;

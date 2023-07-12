@@ -6,7 +6,7 @@ import "package:parser_combinator/src/parser/base/core/mixin/wrapping_parser.dar
 import "package:parser_combinator/src/peg/handler/abstract/handler.dart";
 import "package:parser_combinator/src/shared/typedef.dart";
 
-class PipedParser<R, C> extends Parser<R> with WrappingParser<R, C> {
+base class PipedParser<R, C> extends Parser<R> with WrappingParser<R, C> {
   final String Function()? _toString;
 
   @override

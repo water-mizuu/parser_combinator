@@ -12,7 +12,7 @@ part "thunk_extension.dart";
 
 typedef _ThunkMap = HashMap<Lazy<Parser<void>>, ReferenceParser<void>>;
 
-class ReferenceParser<R> extends Parser<R> with LazyLoad<R> {
+base class ReferenceParser<R> extends Parser<R> with LazyLoad<R> {
   static final _ThunkMap _thunkMap = _ThunkMap();
 
   @override

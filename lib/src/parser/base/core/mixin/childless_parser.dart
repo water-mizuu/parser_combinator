@@ -1,7 +1,7 @@
 import "package:parser_combinator/src/parser/base/core/abstract/parser.dart";
 import "package:parser_combinator/src/shared/typedef.dart";
 
-mixin ChildlessParser<R> on Parser<R> {
+base mixin ChildlessParser<R> on Parser<R> {
   bool get nullable;
 
   @override

@@ -5,7 +5,7 @@ import "package:parser_combinator/src/parser/base/core/abstract/parser.dart";
 import "package:parser_combinator/src/parser/base/core/mixin/wrapping_parser.dart";
 import "package:parser_combinator/src/peg/handler/abstract/handler.dart";
 
-class PositiveLookaheadParser<R> extends Parser<bool> with WrappingParser<bool, R> {
+base class PositiveLookaheadParser<R> extends Parser<bool> with WrappingParser<bool, R> {
   @override
   final List<Parser<R>> children;
   Parser<R> get parser => children[0];

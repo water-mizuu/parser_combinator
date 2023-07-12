@@ -1,7 +1,7 @@
 import "package:parser_combinator/src/parser/base/core/abstract/parser.dart";
 import "package:parser_combinator/src/shared/typedef.dart";
 
-mixin WrappingParser<R, C> on Parser<R> {
+base mixin WrappingParser<R, C> on Parser<R> {
   Parser<C> get child => children[0] as Parser<C>;
 
   WrappingParser<R, C> generateEmpty();

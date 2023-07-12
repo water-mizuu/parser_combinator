@@ -11,16 +11,16 @@ Parser<String> _uppercase() => codeRange("A".unit, "Z".unit);
 Parser<String> _lowercaseGreek() => codeRange("α".unit, "ω".unit);
 Parser<String> _uppercaseGreek() => codeRange("Α".unit, "Ω".unit);
 
-Parser<String> _letter() => _lowercase() / _uppercase();
+Parser<String> _letter() => _lowercase() | _uppercase();
 Parser<String> _letters() => _letters().plus().flat();
 
-Parser<String> _greek() => _lowercaseGreek() / _uppercaseGreek();
+Parser<String> _greek() => _lowercaseGreek() | _uppercaseGreek();
 Parser<String> _greeks() => _greek().plus().flat();
 
-Parser<String> _alphanum() => _digit() / _letter();
+Parser<String> _alphanum() => _digit() | _letter();
 Parser<String> _alphaNums() => _alphanum().plus().flat();
 
-Parser<String> _hex() => _digit() / codeRange("a".unit, "f".unit);
+Parser<String> _hex() => _digit() | codeRange("a".unit, "f".unit);
 Parser<String> _hexes() => _hex().plus().flat();
 
 Parser<String> _octal() => codeRange("0".unit, "7".unit);
@@ -32,12 +32,12 @@ Parser<String> _delimitedSingle(Parser<String> delimiter) => //
     (string(r"\") & any() | delimiter.not() & any()).flat().surrounded(delimiter, delimiter);
 
 // STRING
-Parser<String> _string() => _singleString() / _doubleString();
+Parser<String> _string() => _singleString() | _doubleString();
 Parser<String> _singleString() => _delimitedStar("'".p()).message("Expected single-string literal");
 Parser<String> _doubleString() => _delimitedStar('"'.p()).message("Expected double-string literal");
 
 // CHAR
-Parser<String> _char() => _singleChar() / _doubleChar();
+Parser<String> _char() => _singleChar() | _doubleChar();
 Parser<String> _singleChar() => _delimitedSingle("'".p());
 Parser<String> _doubleChar() => _delimitedSingle('"'.p());
 
@@ -80,15 +80,15 @@ Parser<num> _jsonNumber() => (__sign.$(), __base.$(), __power.$())
     .map(((num, num, num) v) => v.$1 * v.$2 * v.$3);
 
 Parser<Object> __controlCharBody() =>
-    string(r"\") |
-    string('"') |
-    string("/") |
-    string("b") |
-    string("f") |
-    string("n") |
-    string("r") |
-    string("t") |
-    hex.$() * 4;
+    string(r"\") /
+    string('"') /
+    string("/") /
+    string("b") /
+    string("f") /
+    string("n") /
+    string("r") /
+    string("t") /
+    hex.$().times(4);
 Parser<Object> __controlChar() => string(r"\") + __controlCharBody.$();
 Parser<Object> __stringAvoid() => __controlChar.$() | string('"');
 Parser<Object> __stringChar() => __controlChar.$() | any().prefix(__stringAvoid.$().not());

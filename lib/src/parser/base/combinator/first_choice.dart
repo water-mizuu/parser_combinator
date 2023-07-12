@@ -4,7 +4,7 @@ import "package:parser_combinator/parser_combinator.dart";
 /// An extension of the [ChoiceParser], with the main difference
 /// being that [FirstChoiceParser] only yields one result.
 ///
-class FirstChoiceParser<R> extends ChoiceParser<R> {
+base class FirstChoiceParser<R> extends ChoiceParser<R> {
   FirstChoiceParser(super.children);
 
   @override

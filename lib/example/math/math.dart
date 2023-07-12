@@ -103,25 +103,30 @@ class BinaryExpression extends MathExpression {
 
 Parser<MathExpression> mathParser() => addition.build();
 Parser<MathExpression> addition() =>
-    (addition.$() + token("+") + multiplication.$()).map(MathExpression.binary) /
-    (addition.$() + token("-") + multiplication.$()).map(MathExpression.binary) /
+    MathExpression.binary ^ addition.$() + token("+") + multiplication.$() |
+    MathExpression.binary ^ addition.$() + token("-") + multiplication.$() |
     multiplication.$();
 
 Parser<MathExpression> multiplication() =>
-    (multiplication.$() + token("*") + negative.$()).map(MathExpression.binary) /
-    (multiplication.$() + token("/") + negative.$()).map(MathExpression.binary) /
-    (multiplication.$() + token("~/") + negative.$()).map(MathExpression.binary) /
+    MathExpression.binary ^ multiplication.$() + token("*") + negative.$() |
+    MathExpression.binary ^ multiplication.$() + token("/") + negative.$() |
+    MathExpression.binary ^ multiplication.$() + token("~/") + negative.$() |
     negative.$();
 
 Parser<MathExpression> negative() =>
-    (token("-") + exponentation.$()).map(MathExpression.preUnary) / //
+    MathExpression.preUnary ^ token("-") + exponentation.$() | //
     exponentation.$();
 
 Parser<MathExpression> exponentation() =>
-    (atomic.$() + token("^") + exponentation.$()).map(MathExpression.binary) /
-    (atomic.$() + token("**") + exponentation.$()).map(MathExpression.binary) /
+    MathExpression.binary ^ atomic.$() + token("^") + exponentation.$() |
+    MathExpression.binary ^ atomic.$() + token("**") + exponentation.$() |
     atomic.$();
 
 Parser<MathExpression> atomic() =>
-    addition.$().surrounded(token("("), token(")")) / //
+    addition.$().surrounded(token("("), token(")")) | //
     regex(r"\d+").map(num.parse).map(ConstantExpression.new);
+
+extension ParserExtension<O, I> on O Function(I) {
+  Parser<O> transform(Parser<I> other) => other.map((I v) => this(v));
+  Parser<O> operator ^(Parser<Object> other) => other.map((Object v) => this(v as I));
+}

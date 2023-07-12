@@ -8,7 +8,7 @@ import "package:parser_combinator/src/peg/handler/abstract/handler.dart";
 ///
 /// Choice [Parser] that describes alternative.
 ///
-class ChoiceParser<R> extends Parser<R> with CombinatorParser<R> {
+base class ChoiceParser<R> extends Parser<R> with CombinatorParser<R> {
   @override
   final List<Parser<R>> children;
 
@@ -65,17 +65,16 @@ extension ChoiceParserExtension<R> on Parser<R> {
 }
 
 extension NonNullableChoiceParserExtension<R extends Object> on Parser<R> {
-  Parser<Object> operator |(Parser<Object> other) => switch (this) {
-        ChoiceParser<R>(:List<Parser<R>> children) => ChoiceParser<Object>(<Parser<Object>>[...children, other]),
-        Parser<R> self => ChoiceParser<Object>(<Parser<Object>>[self, other]),
-      };
-
-  Parser<R> operator /(Parser<R> other) => switch (this) {
+  Parser<R> operator |(Parser<R> other) => switch (this) {
         ChoiceParser<R>(:List<Parser<R>> children) => ChoiceParser<R>(<Parser<R>>[...children, other]),
         Parser<R> self => ChoiceParser<R>(<Parser<R>>[self, other]),
       };
 
-  Parser<Object> or(Parser<Object> other) => this | other;
+  Parser<Object> operator /(Parser<Object> other) => switch (this) {
+        ChoiceParser<Object>(:List<Parser<Object>> children) =>
+          ChoiceParser<Object>(<Parser<Object>>[...children, other]),
+        Parser<Object> self => ChoiceParser<Object>(<Parser<Object>>[self, other]),
+      };
 }
 
 extension ListChoiceParserExtension<R> on Iterable<Parser<R>> {

@@ -1,6 +1,6 @@
 import "package:parser_combinator/parser_combinator.dart";
 
-mixin SequentialParser<O, R> on Parser<O> {
+base mixin SequentialParser<O, R> on Parser<O> {
   SequentialParser<O, R> generateEmpty();
 
   @override

@@ -2,7 +2,7 @@ import "package:meta/meta.dart";
 import "package:parser_combinator/src/parser/base/core/abstract/parser.dart";
 import "package:parser_combinator/src/shared/typedef.dart";
 
-mixin LazyLoad<R> on Parser<R> {
+base mixin LazyLoad<R> on Parser<R> {
   abstract final Lazy<Parser<R>> lazyParser;
   late Parser<R> computed = lazyParser();
 

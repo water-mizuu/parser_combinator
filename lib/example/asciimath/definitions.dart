@@ -1,6 +1,6 @@
 part of "grammar.dart";
 
-class _AsciiMathConversion implements Comparable<_AsciiMathConversion> {
+final class _AsciiMathConversion implements Comparable<_AsciiMathConversion> {
   final String asciimath;
   final bool rawFirst;
   final bool firstIsOption;
@@ -19,7 +19,7 @@ class _AsciiMathConversion implements Comparable<_AsciiMathConversion> {
   int compareTo(_AsciiMathConversion other) => other.asciimath.length - asciimath.length;
 }
 
-mixin _AsciiMathDefinitions {
+mixin class _AsciiMathDefinitions {
   List<_AsciiMathConversion> get greekLetters => const <_AsciiMathConversion>[
         _AsciiMathConversion(asciimath: "alpha", tex: r"\alpha"),
         _AsciiMathConversion(asciimath: "beta", tex: r"\beta"),
@@ -105,6 +105,7 @@ mixin _AsciiMathDefinitions {
         _AsciiMathConversion(asciimath: "ne", tex: r"\ne"),
         _AsciiMathConversion(asciimath: "notin", tex: r"\notin"),
         _AsciiMathConversion(asciimath: "!in", tex: r"\notin"),
+        _AsciiMathConversion(asciimath: "in!", tex: r"\notin"),
         _AsciiMathConversion(asciimath: "prec", tex: r"\prec"),
         _AsciiMathConversion(asciimath: "-lt", tex: r"\prec"),
         _AsciiMathConversion(asciimath: "-<", tex: r"\prec"),
@@ -219,8 +220,8 @@ mixin _AsciiMathDefinitions {
         _AsciiMathConversion(asciimath: "bigcap", tex: r"\bigcap"),
         _AsciiMathConversion(asciimath: "bigcup", tex: r"\bigcup"),
         _AsciiMathConversion(asciimath: "square", tex: r"\square"),
-        _AsciiMathConversion(asciimath: "lamda", tex: r"\lambda"),
-        _AsciiMathConversion(asciimath: "Lamda", tex: r"\Lambda"),
+        _AsciiMathConversion(asciimath: "lambda", tex: r"\lambda"),
+        _AsciiMathConversion(asciimath: "Lambda", tex: r"\Lambda"),
         _AsciiMathConversion(asciimath: "aleph", tex: r"\aleph"),
         _AsciiMathConversion(asciimath: "angle", tex: r"\angle"),
         _AsciiMathConversion(asciimath: "frown", tex: r"\frown"),

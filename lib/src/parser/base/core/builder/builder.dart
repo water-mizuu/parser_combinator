@@ -19,7 +19,6 @@ typedef InfixHandler<Result, Left, Operator, Right> = Result Function(Left left,
 typedef MonoidInfixHandler<Result, Operator> = InfixHandler<Result, Result, Operator, Result>;
 typedef MonoidPrefixHandler<Result, Operator> = PrefixHandler<Result, Operator, Result>;
 typedef MonoidPostfixHandler<Result, Operator> = PostfixHandler<Result, Result, Operator>;
-typedef MonoidSurroundHandler<O, Left, Right> = SurroundHandler<O, Left, O, Right>;
 
 extension<R extends Object> on R {
   O _pipe<O>(O Function(R) function) => function(this);
@@ -58,7 +57,7 @@ class ExpressionGroup<T> {
   ExpressionGroup<T> surround<L extends Object, R extends Object>(
     Parser<L> left,
     Parser<R> right,
-    MonoidSurroundHandler<T, L, R> handler,
+    T Function(L left, T value, R right) handler,
   ) =>
       this
         .._surround
@@ -115,11 +114,13 @@ class ExpressionGroup<T> {
   Parser<T> _buildPre(Parser<T> previous) => _pre.isEmpty
       ? previous
       : (_pre.choice().star() & previous).map((List<Object?> $) {
-          var [List<PrefixWrapper<T, void>> wrapper as List<PrefixWrapper<T, void>>, T result as T] = $;
-          for (int i = wrapper.length - 1; i >= 0; i--) {
-            result = wrapper[i].evaluate(result);
+          if ($ case [List<PrefixWrapper<T, void>> wrapper, T result]) {
+            for (int i = wrapper.length - 1; i >= 0; i--) {
+              result = wrapper[i].evaluate(result);
+            }
+            return result;
           }
-          return result;
+          return never;
         });
   ExpressionGroup<T> pre<O>(Parser<O> parser, MonoidPrefixHandler<T, O> handler) =>
       this.._pre.add(parser.map((O op) => PrefixWrapper<T, O>(op, handler)));
@@ -128,11 +129,13 @@ class ExpressionGroup<T> {
   Parser<T> _buildPost(Parser<T> previous) => _post.isEmpty
       ? previous
       : (previous & _post.choice().star()).map((List<Object?> $) {
-          var [T result as T, List<PostfixWrapper<T, void>> wrapper as List<PostfixWrapper<T, void>>] = $;
-          for (int i = 0; i < wrapper.length; ++i) {
-            result = wrapper[i].evaluate(result);
+          if ($ case [T result, List<PostfixWrapper<T, void>> wrapper]) {
+            for (int i = 0; i < wrapper.length; ++i) {
+              result = wrapper[i].evaluate(result);
+            }
+            return result;
           }
-          return result;
+          return never;
         });
   ExpressionGroup<T> post<O>(Parser<O> parser, MonoidPostfixHandler<T, O> handler) =>
       this.._post.add(parser.map((O op) => PostfixWrapper<T, O>(op, handler)));
