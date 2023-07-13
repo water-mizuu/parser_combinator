@@ -25,20 +25,13 @@ base class PositiveLookaheadParser<R> extends Parser<bool> with WrappingParser<b
   }
 
   @override
-  Context<bool> pegParseOn(Context<void> context, PegHandler handler) {
-    Context<R> result = handler.parse(parser, context);
-
-    if (result is Failure) {
-      return result;
-    } else {
-      return context.success(true);
-    }
-  }
+  Context<bool> pegParseOn(Context<void> context, PegHandler handler) => switch (handler.parse(parser, context)) {
+        Failure failure => failure as Context<bool>,
+        Context<void> context => context.success(true),
+      };
 
   @override
-  PositiveLookaheadParser<R> generateEmpty() {
-    return PositiveLookaheadParser<R>._empty();
-  }
+  PositiveLookaheadParser<R> generateEmpty() => PositiveLookaheadParser<R>._empty();
 }
 
 extension PositiveLookaheadParserExtension<R> on Parser<R> {

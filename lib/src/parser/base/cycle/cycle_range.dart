@@ -26,18 +26,12 @@ base class CycleRangeParser<R> extends Parser<List<R>> with WrappingParser<List<
         ///   Basically, it doesn't terminate lmao
 
         trampoline.add(child, context, (Context<R> result) {
-          if (result case Success<R>()) {
-            _parseMaximum(result, count + 1, <R>[...results, result.value], <Object?>[...cst, result.cst]);
-          } else if (result case Empty()) {
-            _parseMaximum(result, count + 1, results, <Object?>[...cst, result.cst]);
+          if (result case Success<R>(:R value, cst: Object? _cst)) {
+            _parseMaximum(result, count + 1, <R>[...results, value], <Object?>[...cst, _cst]);
+          } else if (result case Empty(cst: Object? _cst)) {
+            _parseMaximum(result, count + 1, results, <Object?>[...cst, _cst]);
           }
         });
-        // trampoline.add(child, context, (result) =>
-        //   switch (result) {
-        //     Success<R> result => _parseMaximum(result, count + 1, [...results, result.value], [...cst, result.cst]),
-        //     Empty result => _parseMaximum(result, count + 1, results, [...cst, result.cst]),
-        //     _ => null,
-        //   });
       }
     }
 
@@ -49,19 +43,12 @@ base class CycleRangeParser<R> extends Parser<List<R>> with WrappingParser<List<
       trampoline.add(child, context, (Context<R> result) {
         if (result case Failure()) {
           continuation(result);
-        } else if (result case Empty()) {
-          _parseMinimum(result, count + 1, results, <Object?>[...cst, result.cst]);
-        } else if (result case Success<R>()) {
-          _parseMinimum(result, count + 1, <R>[...results, result.value], <Object?>[...cst, result.cst]);
+        } else if (result case Success<R>(:R value, cst: Object? _cst)) {
+          _parseMinimum(result, count + 1, <R>[...results, value], <Object?>[...cst, _cst]);
+        } else if (result case Empty(cst: Object? _cst)) {
+          _parseMinimum(result, count + 1, results, <Object?>[...cst, _cst]);
         }
       });
-
-      // trampoline.add(child, context, (result) =>
-      //   switch (result) {
-      //     Failure result => continuation(result),
-      //     Empty result => _parseMinimum(result, count + 1, results, [...cst, result.cst]),
-      //     Success<R> result => _parseMinimum(result, count + 1, [...results, result.value], [...cst, result.cst]),
-      //   });
     }
 
     return _parseMinimum(context, 0, <R>[], <Object?>[]);
@@ -78,8 +65,8 @@ base class CycleRangeParser<R> extends Parser<List<R>> with WrappingParser<List<
       Context<R> result = handler.parse(child, ctx);
       if (result case Failure()) {
         return result;
-      } else if (result case Success<R>()) {
-        results.add(result.value);
+      } else if (result case Success<R>(:R value)) {
+        results.add(value);
       }
       cst.add(result.cst);
 
@@ -89,9 +76,9 @@ base class CycleRangeParser<R> extends Parser<List<R>> with WrappingParser<List<
     for (; i < max; ++i) {
       Context<R> result = handler.parse(child, ctx);
       if (result case Failure()) {
-        return result.success(results, cst);
-      } else if (result case Success<R>()) {
-        results.add(result.value);
+        return ctx.success(results, cst);
+      } else if (result case Success<R>(:R value)) {
+        results.add(value);
       }
       cst.add(result.cst);
       ctx = result;
